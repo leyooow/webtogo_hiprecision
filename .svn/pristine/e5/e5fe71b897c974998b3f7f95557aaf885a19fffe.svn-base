@@ -1,0 +1,175 @@
+@CHARSET "ISO-8859-1";
+
+.chatFront {
+	width: 265px;
+	height: 340px;
+	padding: 10px;
+	background: url(../../chat/image/bgFront.jpg) top repeat-x #2a339a;
+	
+	-webkit-border-top-left-radius: 5px;
+	-khtml-border-radius-topleft: 5px;	
+	-moz-border-radius-topleft: 5px;
+	border-top-left-radius: 5px;
+	
+	-webkit-border-bottom-left-radius: 5px;
+	-khtml-border-radius-bottomleft: 5px;	
+	-moz-border-radius-bottomleft: 5px;
+	border-bottom-left-radius: 5px;
+	
+	-webkit-border-top-right-radius: 5px;
+	-khtml-border-radius-topright: 5px;	
+	-moz-border-radius-topright: 5px;
+	border-top-right-radius: 5px;
+	
+	-webkit-border-bottom-right-radius: 5px;
+	-khtml-border-radius-bottomright: 5px;	
+	-moz-border-radius-bottomright: 5px;
+	border-bottom-right-radius: 5px;
+}
+.chatHead h1{
+	font: bold 10px Arial;
+	color: #ffffff;
+	margin: 0 0 5px 0;
+	padding: 0px;
+}
+.chatHead{
+	cursor:pointer;
+	float:left;
+	font-size:11px;
+	
+	-webkit-border-top-left-radius: 5px;
+	-khtml-border-radius-topleft: 5px;	
+	-moz-border-radius-topleft: 5px;
+	border-top-left-radius: 5px;
+	
+	-webkit-border-bottom-left-radius: 5px;
+	-khtml-border-radius-bottomleft: 5px;	
+	-moz-border-radius-bottomleft: 5px;
+	border-bottom-left-radius: 5px;
+	
+	-webkit-border-top-right-radius: 5px;
+	-khtml-border-radius-topright: 5px;	
+	-moz-border-radius-topright: 5px;
+	border-top-right-radius: 5px;
+	
+	-webkit-border-bottom-right-radius: 5px;
+	-khtml-border-radius-bottomright: 5px;	
+	-moz-border-radius-bottomright: 5px;
+	border-bottom-right-radius: 5px;
+}
+.chatBox {
+	width: 262px;
+	height: 240px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	background: url(../../chat/image/logo_webtogo2.jpg) no-repeat center #ffffff;
+}
+
+.chatTextarea2 {
+	width: 256px;
+	height: 45px;
+	background: #ffffff;
+	padding: 3px;
+	margin: 2px 0;
+	border-top: 1px solid #3039b1
+}
+
+input[type=text].inputName {
+	width: 260px;
+	height: 19px;
+	padding: 2px;
+	border: none;
+	font-size: 11px;
+	margin: 2px 0;
+	color: #6c6c6c;
+}
+
+.chatTextarea2 textarea {
+	border: none;
+	height: 41px;
+	width: 196px;
+	padding: 2px;
+	/*overflow-x: hidden;*/
+	overflow-y: auto;
+	font-size: 11px;
+	font-family: Arial;
+	resize:none;
+}
+
+input[type=button].btnSendGray, input[type=submit].btnSendGray, .btnSendGray {
+	background: url(../../chat/image/btnGray.jpg) repeat-x bottom  #cbcbcb;
+	padding: 4px 8px;
+	font-size: 11px;
+	cursor:pointer;
+	margin: 4px 2px;
+	width: 48px;
+	border: none;
+	height: 35px;
+	float: right;
+	
+	-webkit-border-top-left-radius: 5px;
+	-khtml-border-radius-topleft: 5px;	
+	-moz-border-radius-topleft: 5px;
+	border-top-left-radius: 5px;
+	
+	-webkit-border-bottom-left-radius: 5px;
+	-khtml-border-radius-bottomleft: 5px;	
+	-moz-border-radius-bottomleft: 5px;
+	border-bottom-left-radius: 5px;
+	
+	-webkit-border-top-right-radius: 5px;
+	-khtml-border-radius-topright: 5px;	
+	-moz-border-radius-topright: 5px;
+	border-top-right-radius: 5px;
+	
+	-webkit-border-bottom-right-radius: 5px;
+	-khtml-border-radius-bottomright: 5px;	
+	-moz-border-radius-bottomright: 5px;
+	border-bottom-right-radius: 5px;
+}
+b.chatonline{/*status title*/
+	color:BLUE;
+}
+b.chatoffline{/*status title*/
+	color:RED;
+}
+p.message{/*error message*/
+	color:RED;
+}
+p.sender {/*sender message*/
+	color: #0099CC;
+}
+p.server{/*admin message*/
+	color:#FF7878;
+	}
+em.server{/*admin name*/
+	color:#C23B22;
+}
+
+.chat_item {
+	margin-top: 0.3em;
+	padding: 3px;
+	font-size: 11px;
+	font-family: arial; margin-5px;
+	border-bottom: 1px solid #666;
+}
+
+.chat_item p{
+	padding: 2px;
+	margin-top: 0em;
+	margin-bottom: 0em;
+	-webkit-margin-before:0em;
+	-webkit-margin-after:0em;
+	-webkit-margin-start:0px;
+	-webkit-margin-start:0px;
+}
+
+.chat_item h6{
+	padding: 2px;
+	margin-top: 0em;
+	margin-bottom: 0em;
+	-webkit-margin-before:0em;
+	-webkit-margin-after:0em;
+	-webkit-margin-start:0px;
+	-webkit-margin-start:0px;
+}

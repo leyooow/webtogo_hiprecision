@@ -1,0 +1,884 @@
+package com.ivant.cms.delegate;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+
+import com.google.gdata.data.Entry;
+import com.ivant.cms.beans.CountBean;
+import com.ivant.cms.beans.NameBean;
+import com.ivant.cms.db.CategoryItemDAO;
+import com.ivant.cms.db.LogDAO;
+import com.ivant.cms.entity.Brand;
+import com.ivant.cms.entity.Category;
+import com.ivant.cms.entity.CategoryItem;
+import com.ivant.cms.entity.CategoryItemOtherField;
+import com.ivant.cms.entity.Company;
+import com.ivant.cms.entity.Group;
+import com.ivant.cms.entity.Log;
+import com.ivant.cms.entity.User;
+import com.ivant.cms.entity.list.ObjectList;
+import com.ivant.cms.enums.EntityLogEnum;
+import com.ivant.utils.CategoryItemPackageWrapper;
+
+public class CategoryItemDelegate extends AbstractBaseDelegate<CategoryItem, CategoryItemDAO>{
+
+	private static CategoryItemDelegate instance = new CategoryItemDelegate();
+	private LogDAO logDao = new LogDAO();
+	
+	public ObjectList<CategoryItem> findAll(int page, int maxResults, Order[] orders, Group parentGroup, Company company ) {
+		return dao.findAll(page, maxResults, orders, parentGroup, company);
+	}
+	
+	public static CategoryItemDelegate getInstance() {
+		return instance;
+	}
+	
+	public CategoryItemDelegate() {
+		super(new CategoryItemDAO());		
+	}
+	
+	public CategoryItem find(Boolean isValid, Long id)
+	{
+		return dao.find(isValid, id);
+	}
+	
+	public CategoryItem findByGroupAndName(Company company, Group parentGroup, String name){
+		return dao.findByGroupAndName(company, parentGroup, name);
+	}
+	
+	public CategoryItem find(Company company, Category parent, String name) {
+		return dao.find(company, parent, name);
+	}
+	
+	public CategoryItem findDuplicate(Company company, String name, String sku, Category parent, Group group){
+		return dao.findDuplicate(company, name, sku, parent, group);
+	}
+	
+	public CategoryItem findContainsName(Company company, String name){
+		
+		return dao.findContainsName(company, name);
+	}
+	
+	public CategoryItem findSKU(Company company, String sku) {
+		return dao.findSKU(company, sku);
+	}
+	
+	public CategoryItem findByName(Company company, String name) {
+		return dao.findByName(company, name);
+	}
+	
+	public ObjectList<CategoryItem> findAll(Company company) {
+		return dao.findAll(company);
+	}
+	
+	public ObjectList<CategoryItem> findAllEnabled(Company company){
+		return dao.findAllEnabled(company);
+	}
+	
+	public ObjectList<CategoryItem> findAllSortedByDate(Company company) {
+		return dao.findAllSortedByDate(company);
+	}
+	
+	public ObjectList<CategoryItem> findDescItems(Company company, List<Category> parentList, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findDescItems(company, parentList, resultPerPage, pageNumber, orders);
+	}
+	
+	public int findDescItemsSize(Company company, List<Category> parentList, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findDescItemsSize(company, parentList, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findDescItemsWithPaging(Company company, List<Category> parentList, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findDescItemsWithPaging(company, parentList, resultPerPage, pageNumber, orders);
+	}	
+	
+	public ObjectList<CategoryItem> findAll(Company company, Category parent, boolean showAll) {
+		return dao.findAll(company, parent, null, showAll);
+	}
+		
+	public ObjectList<CategoryItem> findAllByTags(Company company, String tag) {
+		return dao.findAllByTags(company, tag);
+	}
+	
+	public ObjectList<CategoryItem> findTagItemsWithPaging(Company company, String tag, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findTagItemsWithPaging(company, tag, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAll(Company company, Category parent, Order[] order, boolean showAll) {
+		return dao.findAll(company, parent, order, showAll);
+	}
+	
+	public ObjectList<CategoryItem> findAll(Company company, Category parent, Order[] order, boolean showAll, boolean disabled) {
+		return dao.findAll(company, parent, order, showAll, disabled);
+	}
+	
+	public ObjectList<CategoryItem> findAllEnabledWithPaging(Company company, Group group, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findAllEnabledWithPaging(company, group, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAllWithPaging(Company company, Group group, int resultPerPage, int pageNumber, Order...orders){
+		return dao.findAllWithPaging(company, group, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAllEnabledNotFreebiesWithPaging(Company company, Group group, int resultPerPage, int pageNumber, Order...orders){
+		return dao.findAllEnabledNotFreebiesWithPaging(company, group, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAllDisabledWithPaging(Company company, Group group, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findAllDisabledWithPaging(company, group, resultPerPage, pageNumber, orders);
+	}
+	
+	public CategoryItem findBySearchTagsContains(Company company, Group group, String searchTagContains) {
+		return dao.findBySearchTagsContains(company, group, searchTagContains);
+	}
+	
+	public ObjectList<CategoryItem> findAllBillsWithPaging(Company company, Group group, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findAllBillsWithPaging(company, group, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAllFeaturedProductsWithPaging(Company company, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findAllFeaturedProductsWithPaging(company, resultPerPage, pageNumber, orders);
+	}
+		
+	public ObjectList<CategoryItem> findAllBestSellersWithPaging(Company company, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findAllBestSellersWithPaging(company, resultPerPage, pageNumber, orders);
+	}
+
+	public ObjectList<CategoryItem> findAllFeaturedByGroupWithPaging(Company company, Group group, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findAllFeaturedByGroupWithPaging(company, group, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAllFeaturedByGroup(Company company, Group group, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.findAllFeaturedByGroupWithPaging(company, group, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAllFeaturedByGroup(Company company, Group group, Order...orders) {
+		return dao.findAllFeaturedByGroup(company, group, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAllActiveItemsWithPaging(Company company, Category parent, int resultPerPage, int pageNumber, boolean showAll, Order... order) {
+		return dao.findAllActiveItemsWithPaging(company, parent, resultPerPage, pageNumber, order, showAll);
+	} 
+	
+	public ObjectList<CategoryItem> findAllWithPaging(Company company, Category parent, int resultPerPage, int pageNumber, boolean showAll, Order... order) {
+		return dao.findAllWithPaging(company, parent, resultPerPage, pageNumber, order, showAll);
+	}
+	
+	public ObjectList<CategoryItem> getAllItems (Company company, Group group, int resultPerPage,int pageNumber, Order... orders)
+	{
+		return dao.getAllItems ( company,  group, resultPerPage, pageNumber, orders);
+		
+	}
+
+	public ObjectList<CategoryItem> getAllCatItemsNoPaging (Company company, Category parent, Order... orders)
+	{
+		return dao.getAllCatItemsNoPaging ( company,  parent, orders);
+		
+	}	
+		
+	public ObjectList<CategoryItem> getAllCatItems (Company company, Category parent, int resultPerPage,int pageNumber, Order... orders)
+	{
+		return dao.getAllCatItems ( company,  parent, resultPerPage, pageNumber, orders);		
+	}
+	
+	public ObjectList<CategoryItem> searchByGroup(String keyword, Company company, Group group){
+		return dao.searchByGroup(keyword, company, group);
+	}
+	
+	public ObjectList<CategoryItem> findAllWithPaging(Company company, Group group, Category parent, int resultPerPage, int pageNumber, boolean showAll, Order... order) {
+		return dao.findAllWithPaging(company, group, parent, resultPerPage, pageNumber, order, showAll);
+	}	
+	
+	public ObjectList<CategoryItem> findAllWithPaging(Company company, Group group, Category parent, int resultPerPage, int pageNumber, boolean showAll, boolean hasUserRights, List<Category> forbiddenCategories, Order... order) {
+		return dao.findAllWithPaging(company, group, parent, resultPerPage, pageNumber, order, showAll, hasUserRights, forbiddenCategories);
+	}	
+	//findAllFeaturedWithPaging
+	public ObjectList<CategoryItem> findAllFeaturedWithPaging(Company company, Group group, Category parent, int resultPerPage, int pageNumber, boolean showAll, boolean isFeatured, Order... order) {
+		return dao.findAllFeaturedWithPaging(company, group, parent, resultPerPage, pageNumber, order, showAll, isFeatured);
+	}
+	
+	public Integer countAll(Company company, Group group, Category parent,  boolean showAll)
+	{
+		return dao.countAll(company, group, parent, showAll);
+	}
+	
+	public Integer countAll(Company company, Group group, Category parent,  boolean showAll, boolean hasUserRights, List<Category> forbiddenCategories)
+	{
+		return dao.countAll(company, group, parent, showAll, hasUserRights, forbiddenCategories);
+	}
+	
+	public ObjectList<CategoryItem> findAllByGroupWithPaging(Company company,Group group,int resultPerPage,int pageNumber, Order... orders){
+		return dao.findAllByGroupWithPaging(company,group, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAllEnabledByGroupWithPaging(Company company,Group group,int resultPerPage,int pageNumber, Order... orders){
+		return dao.findAllEnabledByGroupWithPaging(company,group, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAllEnabledByGroupAndParentWithPaging(Company company,Group group, int pageNumber, int resultPerPage, List<Long> idList, Order... orders){
+		return dao.findAllEnabledByGroupAndParentWithPaging(company,group, pageNumber, resultPerPage,  idList, orders);
+	}
+	
+	public ObjectList<CategoryItem> findAllByGroupAndByCategoryWithPaging(Company company, Group group, Category category, int resultsPerPage, int pageNumber, Order[] orders) {
+		return dao.findAllByGroupAndByCategoryWithPaging(company, group, category, resultsPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> findFirstTenItemsByGroup(Company company, Group group){
+		return dao.findFirstTenItemsByGroup(company, group);
+	}
+	
+	public CategoryItem find(Company company, Long id) {
+		return dao.find(company, id);
+	}
+	
+	public List<CategoryItem> search (String keyword, Company company){
+		return dao.search(keyword, company).getList();
+	}
+	
+	public List<CategoryItem> searchByCatSubCatClass (String keyword, Company company){
+		return dao.searchByCatSubCatClass(keyword, company).getList();
+	}
+	
+	public List<CategoryItem> searchByBrand (String keyword, Company company){
+		return dao.searchByBrand(keyword, company).getList();
+	}
+
+	public List<CategoryItem> search (Company company, Category category, List<String> keywords){
+		return dao.search(company, category, keywords).getList();
+	}
+	
+	public ObjectList<CategoryItem> searchByTagsAndName(String keyword, String searchTag, Company company) {
+		return dao.searchByTagsAndName(keyword, searchTag, company);
+	}
+	
+	public ObjectList<CategoryItem> searchByTagAndName(int pageNumber, int resultPerPage, String keyword, String searchTag, Company company, boolean isInDescription) {
+		ObjectList<CategoryItem> allItemsList = dao.searchByTagAndName(pageNumber, resultPerPage, keyword, searchTag, company, isInDescription);
+		List<CategoryItem> allItems = new ArrayList<CategoryItem>();
+		
+		allItems.addAll(allItemsList.getList());
+		
+		StringTokenizer st;
+		
+		ArrayList<CategoryItem> allSearchedItems = new ArrayList<CategoryItem>();
+		
+		for(int i=0; i < allItems.size(); i++) {
+			if(allItems.get(i).getSearchTags() != null) {
+				st = new StringTokenizer(allItems.get(i).getSearchTags(), " ");
+				while (st.hasMoreTokens()) {
+			         if(keyword.equalsIgnoreCase(st.nextToken())) {
+			        	allSearchedItems.add(allItems.get(i));
+			        	break;
+			         }
+			     }
+			}
+		}
+		
+		return allItemsList;
+	}
+	
+	/** searches the given keyword to the list of search tags which are delimited by comma */
+	public List<CategoryItem> searchByTags(String keyword, Company company) {
+		ArrayList<CategoryItem> allItems = new ArrayList<CategoryItem>();
+		StringTokenizer st;
+		allItems = (ArrayList<CategoryItem>)dao.findAll(company).getList();
+		ArrayList<CategoryItem> allSearchedItems = new ArrayList<CategoryItem>();
+		
+		for(int i=0; i < allItems.size(); i++) {
+			if(allItems.get(i).getSearchTags() != null) {
+				st = new StringTokenizer(allItems.get(i).getSearchTags(), " ");
+				while (st.hasMoreTokens()) {
+			         if(keyword.equalsIgnoreCase(st.nextToken())) {
+			        	allSearchedItems.add(allItems.get(i));
+			        	break;
+			         }
+			     }
+			}
+		}
+		
+		return allSearchedItems;
+	}
+
+	public List<CategoryItem> searchBySearchTag(String searchTag, Company company) {
+		ArrayList<CategoryItem> allItems = new ArrayList<CategoryItem>();
+		StringTokenizer st;
+		allItems = (ArrayList<CategoryItem>)dao.findAll(company).getList();
+		ArrayList<CategoryItem> allSearchedItems = new ArrayList<CategoryItem>();
+		
+		for(int i=0; i < allItems.size(); i++) {
+			if(allItems.get(i).getSearchTags() != null) {
+				st = new StringTokenizer(searchTag, " ");
+				boolean pushItem = true;
+				while (st.hasMoreTokens()) {
+			         if(!allItems.get(i).getSearchTags().toUpperCase().contains(st.nextToken().toUpperCase())) {
+			        	pushItem = false;
+			        	break;
+			         }
+			     }
+				if(pushItem){
+					allSearchedItems.add(allItems.get(i));
+				}
+			}
+		}
+		
+		return allSearchedItems;
+	}
+	
+	public List<CategoryItem> searchByName(String keyname,String posName, Company company)
+	{
+		ArrayList<CategoryItem> allItems = new ArrayList<CategoryItem>();
+		String[] st;
+		allItems = (ArrayList<CategoryItem>)dao.findAll(company).getList();
+		ArrayList<CategoryItem> allSearchedItems = new ArrayList<CategoryItem>();
+		String lname="";
+		String fname="";
+		String slower="";
+		String sUpper="";
+		for(int i=0; i < allItems.size(); i++) {
+			if(allItems.get(i).getName() != null) {
+				st = allItems.get(i).getName().split(",");
+				for (int x=0; x<st.length; x++){
+					if(posName.equals("last")){
+						if(x == 0){
+							//System.out.println("ST last name:"+st[x].toLowerCase());
+							if((st[x].contains(keyname))||(st[x].toLowerCase().contains(keyname))||(st[x].toUpperCase().contains(keyname))) {
+					        	allSearchedItems.add(allItems.get(i));
+					        	break;
+					         }
+						}
+					}else{
+						if(x==1){
+							//System.out.println("ST first name:"+st[x].toLowerCase());
+							if((st[x].contains(keyname))||(st[x].toLowerCase().contains(keyname))||(st[x].toUpperCase().contains(keyname))) {
+					        	allSearchedItems.add(allItems.get(i));
+					        	break;
+					         }
+						}
+					}
+					
+			     }
+				
+			         
+			     
+			}
+		}
+		
+		return allSearchedItems;
+	}
+	public List<CategoryItem> search (String keyword, Company company, boolean isInDescription, boolean isHighlightedKeyword){
+		List<CategoryItem> searchList =  dao.search(keyword, company, isInDescription).getList();
+
+		
+		keyword = "(" + Pattern.compile("([^a-zA-z0-9])").matcher(keyword).replaceAll("\\\\$1") + ")";
+		Pattern pattern = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
+		
+		if (isHighlightedKeyword) {
+			for(CategoryItem sl : searchList){
+				
+				Matcher matcher = pattern.matcher(sl.getName());
+				String text = matcher.replaceAll("<b>$1</b>");
+				sl.setName(text);
+				if (isInDescription) {
+					Matcher matcher2 = pattern.matcher(sl.getDescription());
+					String text2 = matcher2.replaceAll("<b>$1</b>");
+					sl.setDescription(text2);
+				}
+			}
+			
+		}
+		for(CategoryItem sl : searchList){
+			//System.out.println(sl.getName());
+		}
+		return searchList;
+	}
+	
+	public ObjectList<CategoryItem> searchWithPaging (int pageNumber, int resultPerPage,
+			String keyword, Company company, boolean isInDescription, boolean isHighlightedKeyword){
+		ObjectList<CategoryItem> searchList =  dao.searchWithPaging(pageNumber, resultPerPage, keyword, company, isInDescription);
+
+		
+		keyword = "(" + Pattern.compile("([^a-zA-z0-9])").matcher(keyword).replaceAll("\\\\$1") + ")";
+		Pattern pattern = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
+		
+		if (isHighlightedKeyword) {
+			for(CategoryItem sl : searchList){
+				
+				Matcher matcher = pattern.matcher(sl.getName());
+				String text = matcher.replaceAll("<b>$1</b>");
+				sl.setName(text);
+				if (isInDescription) {
+					Matcher matcher2 = pattern.matcher(sl.getDescription());
+					String text2 = matcher2.replaceAll("<b>$1</b>");
+					sl.setDescription(text2);
+				}
+			}
+			
+		}
+		for(CategoryItem sl : searchList){
+			//System.out.println(sl.getName());
+		}
+		return searchList;
+	}
+	
+	public ObjectList<CategoryItem> searchClass(String keyword, Company company){
+		ObjectList<CategoryItem> searchList =  dao.searchClass(keyword, company);
+		return searchList;
+	}		
+	
+	public ObjectList<CategoryItem> searchClassWithPaging (int pageNumber, int resultPerPage,
+			String keyword, Company company, boolean isInDescription, boolean isHighlightedKeyword){
+		ObjectList<CategoryItem> searchList =  dao.searchClassWithPaging(pageNumber, resultPerPage, keyword, company, isInDescription);
+		return searchList;
+	}	
+	
+	public List<CategoryItemPackageWrapper> searchIncludePackageWithPaging(int pageNumber, int resultPerPage, 
+			String keyword, Company company, boolean isInDescription, boolean isHighlightedKeyword) {
+		List<CategoryItemPackageWrapper> searchList =  dao.searchIncludePackageWithPaging(pageNumber, resultPerPage, keyword, company, isInDescription);
+
+		
+		keyword = "(" + Pattern.compile("([^a-zA-z0-9])").matcher(keyword).replaceAll("\\\\$1") + ")";
+		Pattern pattern = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
+		
+		if (isHighlightedKeyword) {
+			for(CategoryItemPackageWrapper sl : searchList){
+				
+				Matcher matcher = pattern.matcher(sl.getName());
+				String text = matcher.replaceAll("<b>$1</b>");
+				sl.setName(text);
+				
+				if(StringUtils.isNotEmpty(sl.getSku()))
+				{
+					Matcher matcher2 = pattern.matcher(sl.getSku());
+					String text2 = matcher2.replaceAll("<b>$1</b>");
+					sl.setSku(text2);
+				}
+			}
+			
+		}
+		
+		return searchList;
+	}
+	
+	public Integer countSearchIncludePackage(String keyword, Company company, boolean isInDescription)
+	{
+		return dao.countSearchIncludePackage(keyword, company, isInDescription);
+	}
+
+	public ObjectList<CategoryItem> findAllByGroupAndKeywordWithPaging(
+			int pageNumber, int resultPerPage, String keyword, Company company,
+			boolean isHighlightedKeyword, Group group, String otherFieldName,
+			String otherFieldValue, String otherFieldCompator) {
+		
+		ObjectList<CategoryItem> searchList = dao.searchByGroupAndOtherFieldWithPaging(
+						pageNumber, resultPerPage, keyword, company, group ,
+						otherFieldName,otherFieldValue,otherFieldCompator);
+		
+		if(!StringUtils.isBlank(keyword)){
+			keyword = "("
+				+ Pattern.compile("([^a-zA-z0-9])").matcher(keyword)
+						.replaceAll("\\\\$1") + ")";
+			Pattern pattern = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
+			if (isHighlightedKeyword) {
+				for (CategoryItem sl : searchList) {
+	
+					Matcher matcher = pattern.matcher(sl.getName());
+					String text = matcher.replaceAll("<b>$1</b>");
+					sl.setName(text);
+	
+					if (StringUtils.isNotEmpty(sl.getSku())) {
+						Matcher matcher2 = pattern.matcher(sl.getSku());
+						String text2 = matcher2.replaceAll("<b>$1</b>");
+						sl.setSku(text2);
+					}
+				}
+	
+			}
+		}
+		
+		return searchList;
+	}
+	
+	public ObjectList<CategoryItem> findAllAnalytesByGroupAndKeywordByMachineWithPaging(
+			int pageNumber, int resultPerPage, String keyword, Company company,
+			boolean isHighlightedKeyword, Group group, String otherFieldName,
+			String otherFieldValue, String otherFieldCompator) {
+		
+		ObjectList<CategoryItem> searchList = dao.findAllAnalytesByGroupAndKeywordByMachineWithPaging(
+						pageNumber, resultPerPage, keyword, company, group ,
+						otherFieldName,otherFieldValue,otherFieldCompator);
+		
+		if(!StringUtils.isBlank(keyword)){
+			keyword = "("
+				+ Pattern.compile("([^a-zA-z0-9])").matcher(keyword)
+						.replaceAll("\\\\$1") + ")";
+			Pattern pattern = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
+			if (isHighlightedKeyword) {
+				for (CategoryItem sl : searchList) {
+	
+					Matcher matcher = pattern.matcher(sl.getName());
+					String text = matcher.replaceAll("<b>$1</b>");
+					sl.setName(text);
+	
+					if (StringUtils.isNotEmpty(sl.getSku())) {
+						Matcher matcher2 = pattern.matcher(sl.getSku());
+						String text2 = matcher2.replaceAll("<b>$1</b>");
+						sl.setSku(text2);
+					}
+				}
+	
+			}
+		}
+		
+		return searchList;
+	}
+	
+	
+	
+	public ObjectList<CategoryItem> findAllLabFileByGroupAndKeywordByMachineWithPaging(
+			int pageNumber, int resultPerPage, String keyword, Company company,
+			boolean isHighlightedKeyword, Group group, String otherFieldName,
+			String otherFieldValue, String otherFieldCompator) {
+		
+		ObjectList<CategoryItem> searchList = dao.searchLabFileByGroupAndOtherFieldWithPaging(
+						pageNumber, resultPerPage, keyword, company, group ,
+						otherFieldName,otherFieldValue,otherFieldCompator);
+		
+		if(!StringUtils.isBlank(keyword)){
+			keyword = "("
+				+ Pattern.compile("([^a-zA-z0-9])").matcher(keyword)
+						.replaceAll("\\\\$1") + ")";
+			Pattern pattern = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
+			if (isHighlightedKeyword) {
+				for (CategoryItem sl : searchList) {
+	
+					Matcher matcher = pattern.matcher(sl.getName());
+					String text = matcher.replaceAll("<b>$1</b>");
+					sl.setName(text);
+	
+					if (StringUtils.isNotEmpty(sl.getSku())) {
+						Matcher matcher2 = pattern.matcher(sl.getSku());
+						String text2 = matcher2.replaceAll("<b>$1</b>");
+						sl.setSku(text2);
+					}
+				}
+	
+			}
+		}
+		
+		return searchList;
+	}
+	
+	
+	public ObjectList<CategoryItem> getAllBrandItems (Company company, Brand brand, int resultPerPage,int pageNumber, Order... orders)
+	{
+		return dao.getAllBrandItems ( company,  brand,  resultPerPage, pageNumber, orders);
+		
+	}
+	public ObjectList<CategoryItem> getAllBrandItemsWithPaging (Company company, int resultPerPage, int pageNumber, Brand brand, Order... orders)
+	{
+		return dao.getAllBrandItemsWithPaging(company, resultPerPage, pageNumber, brand, orders);
+		
+	}
+	
+	public ObjectList<CategoryItem> getLatestProductsWithPaging(Company company, int resultPerPage, int pageNumber, Order...orders)
+	{
+		return dao.getLatestProductsWithPaging(company, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> getLatestProductsWithPaging(Company company, Group productgroup, int resultPerPage, int pageNumber, Order...orders)
+	{
+		return dao.getLatestProductsWithPaging(company, productgroup,resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> getLatestProducts(Company company, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.getLatestProducts(company, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> getLatestMonthProductsWithPaging(Company company, int resultPerPage, int pageNumber, Order...orders)
+	{
+		return dao.getLatestProductsWithPaging(company, resultPerPage, pageNumber, orders);
+	}
+	
+	public ObjectList<CategoryItem> getLatestMonthProductsWithPaging(Company company, Group productgroup, int resultPerPage, int pageNumber, Order...orders)
+	{
+		return dao.getLatestProductsWithPaging(company, productgroup,resultPerPage, pageNumber, orders);
+	} 
+	
+	public ObjectList<CategoryItem> getLatestMonthProducts(Company company, int resultPerPage, int pageNumber, Order...orders) {
+		return dao.getLatestProducts(company, resultPerPage, pageNumber, orders);
+	}
+
+	public ObjectList<CategoryItem> findAll(Company company, Group group, String sku) {
+		return dao.findAll(company, group, sku);
+	}
+
+	public ObjectList<CategoryItem> findAllByGroup(Company company, Group group){
+		return dao.findAllByGroup(company, group, Boolean.FALSE);
+	}
+	
+	public ObjectList<CategoryItem> findAllByGroupAndParent(Company company, Group group, Category parent){
+		return dao.findAllByGroupAndParent(company, group, parent);
+	}
+	
+	public ObjectList<CategoryItem> findAllByGroupEnabledValue(Company company, Group group, Boolean isDisabled){
+		return dao.findAllByGroup(company, group, isDisabled);
+	}
+	
+	public ObjectList<CategoryItem> findAllByGroupNameAsc(Company company, Group group){
+		return dao.findAllByGroupNameAsc(company, group);
+	}
+	public ObjectList<CategoryItem> searchbySearchTags(String key, Company company)
+	{
+		return dao.searchbySearchTags(key, company);
+	}
+/*	public ObjectList<CategoryItem> searchByName(String keyname, Company company)
+	{
+		return dao.searchByName(keyname, company);
+	}
+*/
+
+	public List<CategoryItem> search(Company company, Category parentCategory,
+			Category itemParentCategory, String searchItemKeyword) {
+		return dao.search(company, parentCategory,itemParentCategory,searchItemKeyword);
+	}
+
+	public List<CategoryItem> searchByParentCategoryBrand(Company company, Brand brand, String searchItemKeyword) {
+		return dao.searchByParentCategoryBrand(company, brand , searchItemKeyword);
+	}
+	
+	public List<CategoryItem> searchByCategoryAndTag(Company company, Category city, Category category, Group group, String searchTag){
+		return dao.searchByCategoryAndTag(company, city, category, group, searchTag);
+	}
+	
+	public List<CategoryItem> searchOtherFields(Company company, Category parent, Category parentCategory, Group group, String[] fields, String query) {
+		return dao.searchOtherFields(company, parent, parentCategory, group, fields, query);
+	}
+	
+	public List<CategoryItem> searchOtherFieldsWithPaging(Company company, Category parent, Category parentCategory, Group group, String[] fields, String query, int resultsPerPage, int maxResults) {
+		return dao.searchOtherFieldsWithPaging(company, parent, parentCategory, group, fields, query, resultsPerPage, maxResults);
+	}
+	
+	public List<CategoryItem> searchOtherFieldsByBetweenValue(Company company, Category parent, Category parentCategory, Group group, String[] fields, String lowerLimit, String higherLimit) {
+		return dao.searchOtherFieldsByBetweenValue(company, parent, parentCategory, group, fields, lowerLimit, higherLimit);
+	}
+	
+	public List<CategoryItem> searchOtherFieldsByBetweenValueWithPaging(Company company, Category parent, Category parentCategory, Group group, String[] fields, String lowerLimit, String higherLimit, int resultsPerPage, int maxResults) {
+		return dao.searchOtherFieldsByBetweenValueWithPaging(company, parent, parentCategory, group, fields, lowerLimit, higherLimit, resultsPerPage, maxResults);
+	}
+	
+	public List<CategoryItem> searchOtherFieldsByContainsContent(Company company, Category parent, Category parentCategory, Group group, String[] fields, String contentValue) {
+		return dao.searchOtherFieldsByContainsContent(company, parent, parentCategory, group, fields, contentValue);
+	}
+	
+	public List<CategoryItem> searchOtherFieldsByContainsContentWithPaging(Company company, Category parent, Category parentCategory, Group group, String[] fields, String contentValue, int resultsPerPage, int maxResults) {
+		return dao.searchOtherFieldsByContainsContentWithPaging(company, parent, parentCategory, group, fields, contentValue, resultsPerPage, maxResults);
+	}
+	
+	public List<CategoryItem> findAllByBrand(Company company, Brand brand)
+	{
+		return dao.findAllByBrand(company, brand);
+	}
+	
+	public CategoryItem findByArticle(Company company, String article) {
+		return dao.findByArticle(company, article);
+	}
+	
+	public List<CategoryItem> findAllByBrandSortByOrder(Company company, Brand brand)
+	{
+		return dao.findAllByBrandSortByOrder(company, brand);
+	}
+	
+	public List<CategoryItem> findAllByBrandSortByNameWithPaging(Company company, Brand brand, int page, int maxResults)
+	{
+		return dao.findAllByBrandSortByNameWithPaging(company, brand, page, maxResults);
+	}
+	
+	public List<CategoryItem> findAllByBrandSortByNameIsFreebiesWithPaging(Company company, Group group, Brand brand, Boolean isFreebies, Order[] orders, int page, int maxResults, ArrayList<Long> idList)
+	{
+		return dao.findAllByBrandSortByNameIsFreebiesWithPaging(company, group, brand, isFreebies, orders, page, maxResults, idList);
+	}
+	
+	public List<CategoryItem> findAllEnabledByGroupAndItemDate(Company company, Group group, Order[] orders, int page, int maxResults)
+	{
+		return dao.findAllEnabledByGroupAndItemDate(company, group, orders, page, maxResults);
+	}
+
+	public List<CategoryItem> findAllByName(Company company, String name) {
+		// TODO Auto-generated method stub
+		return dao.findAllByName(company, name);
+	}
+	
+	public ObjectList<CategoryItem> findAll(Company company, String sku, String name, Boolean valid) {
+		return dao.findAll(company, sku, name, valid);
+	}
+	
+	public List<CategoryItem> findAllByKeyWordName(Company company, Group group, String keyWord, MatchMode matchMode, Boolean isDisabled, Order[] orders){
+		return dao.findAllByKeyWordName(company, group, keyWord, matchMode, isDisabled, orders);
+	}
+
+	public ObjectList<CategoryItem> findAllByGroup(Company company, Group group, Boolean disabled)
+	{
+		return dao.findAllByGroup(company, group, disabled);
+	}
+	
+	public ObjectList<CategoryItem> findByCriteria(int resultPerPage, int pageNumber, Company company, 
+			Group group, Category parent, Date dateFrom, Date dateTo, boolean showAll, Order... order) {
+		return dao.findByCriteria(resultPerPage, pageNumber, company, group, parent, 
+				dateFrom, dateTo, order, showAll);
+	}
+	
+	public BigInteger getFreebiesRemainingDaysCount(CategoryItem categoryItem){
+		return dao.getFreebiesRemainingDaysCount(categoryItem);
+	}
+	
+	public Boolean hasNewUpdate(Company company, Group group, Date date, Long pid, Category category){
+		return dao.hasNewUpdate(company, group, date, pid, category);
+	}
+	
+	public Boolean hasNewGrandChildUpdate(Company company, Group group, Date date, Long pid, Category category){
+		return dao.hasNewGrandChildUpdate(company, group, date, pid, category);
+	}
+	
+	/**
+	 *
+	 * @param company
+	 * @param group
+	 * @param sku Intended for gurkka freebies; Leave null if not needed
+	 * @param keyword
+	 * @return matched result
+	 */
+	public ObjectList<CategoryItem> findByNameContainsOrSearchTagsContains(Company company, Group group, String sku, String keyword){
+		return dao.findByNameContainsOrSearchTagsContains(company, group, sku, keyword);
+	}
+	
+	public ObjectList<CategoryItem> findByNameContainsOrSearchTagsContains(Company company, String keyword){
+		return dao.findByNameContainsOrSearchTagsContains(company, keyword);
+	}
+	
+	public ObjectList<CategoryItem> findAllByGroupAndKeywords(Company company, Group group, List<String> keywords){
+		return dao.findAllByGroupAndKeywords(company, group, keywords);
+	}
+	
+	public ObjectList<CategoryItem> findByFullContentContains(Company company, Group group, String sku, String keyword){
+		return dao.findByFullContentContains(company, group, sku, keyword);
+	}
+	
+	public ObjectList<CategoryItem> findByFullContentContains(Company company, String keyword){
+		return dao.findByFullContentContains(company, keyword);
+	}
+
+	public List<CategoryItem> findAllByImageKeyword(Company company, String keyword) {
+		// TODO Auto-generated method stub
+		return dao.findAllByImageKeyword(company, keyword);
+	}
+	
+	
+	public ObjectList<NameBean> findAllNameBeanByGroupNameAsc(Company company, Group group){
+		return dao.findAllNameBeanByGroupNameAsc(company, group);
+	}
+	
+	public List<CountBean> findCountPerCategory(Company company, Group group){
+		return dao.findCountPerCategory(company, group);
+	}
+	
+	public ObjectList<CategoryItem> findAllByPriceWithpaging(int page, int maxResults, Company company, Group group, Category parent,  Double minPrice, Double maxPrice){
+		return dao.findAllByPriceWithpaging(page, maxResults, company, group, parent, minPrice, maxPrice, null);
+	}
+	
+	public ObjectList<CategoryItem> findAllByPriceWithpaging(int page, int maxResults, Company company, Group group, Category parent,  Double minPrice, Double maxPrice, String bagType){
+		return dao.findAllByPriceWithpaging(page, maxResults, company, group, parent, minPrice, maxPrice, bagType);
+	}
+	
+	public List<Long> searchAllIdsByGroupAndOtherFieldWithPaging(int pageNumber, int maxResult, String keyword, Company company, Group group, String otherFieldName, String otherFieldValue,
+			String otherFieldCompator){
+		return dao.searchAllIdsByGroupAndOtherFieldWithPaging(pageNumber, maxResult, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+	}
+	
+	public List<Long> searchAllAnalytesIdsByGroupAndOtherFieldWithPaging(int pageNumber, int maxResult, String keyword, Company company, Group group, String otherFieldName, String otherFieldValue,
+			String otherFieldCompator){
+		return dao.searchAllAnalytesIdsByGroupAndOtherFieldWithPaging(pageNumber, maxResult, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+	}
+	
+	public List<Long> searchAllLabFileIdsByGroupAndOtherFieldWithPaging(int pageNumber, int maxResult, String keyword, Company company, Group group, String otherFieldName, String otherFieldValue,
+			String otherFieldCompator){
+		return dao.searchAllLabFileIdsByGroupAndOtherFieldWithPaging(pageNumber, maxResult, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+	}
+	
+	
+	public List<Long> searchHipreUpdatedItems(int pageNumber, int maxResult, String keyword, Company company, Group group, String otherFieldName, String otherFieldValue,
+			String otherFieldCompator){
+		return dao.searchHipreUpdatedItems(pageNumber, maxResult, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+	}
+	public List<Long> searchHipreCreatedItems(int pageNumber, int maxResult, String keyword, Company company, Group group, String otherFieldName, String otherFieldValue,
+			String otherFieldCompator){
+		return dao.searchHipreCreatedItems(pageNumber, maxResult, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+	}
+	
+	public List<Long> searchHipreAnalytesUpdatedItems(int pageNumber, int maxResult, String keyword, Company company, Group group, String otherFieldName, String otherFieldValue,
+			String otherFieldCompator){
+		return dao.searchHipreAnalytesUpdatedItems(pageNumber, maxResult, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+	}
+	
+	public List<Long> searchHipreLabFileUpdatedItems(int pageNumber, int maxResult, String keyword, Company company, Group group, String otherFieldName, String otherFieldValue,
+			String otherFieldCompator){
+		return dao.searchHipreLabFileUpdatedItems(pageNumber, maxResult, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+	}
+	
+	public List<Long> searchHipreaAnalytesCreatedItems(int pageNumber, int maxResult, String keyword, Company company, Group group, String otherFieldName, String otherFieldValue,
+			String otherFieldCompator){
+		return dao.searchHipreaAnalytesCreatedItems(pageNumber, maxResult, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+	}
+	
+	public List<Long> searchHipreaLabFileCreatedItems(int pageNumber, int maxResult, String keyword, Company company, Group group, String otherFieldName, String otherFieldValue,
+			String otherFieldCompator){
+		return dao.searchHipreaLabFileCreatedItems(pageNumber, maxResult, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+	}
+	
+	
+	
+	public List<CategoryItem> findNoLoop(List<Long> ids){
+		return dao.findNoLoop(ids);
+	}
+	
+	
+	public boolean update(CategoryItem item, Company company, User user){
+		final CategoryItem oldCategoryItem = dao.findWithNewSession(item.getId(), true);
+		boolean updateSuccess = dao.update(item);
+		if(updateSuccess){
+			List<Log> updateLogList = new ArrayList<Log>();
+			Log log = new Log();
+							
+			log.setEntityType(EntityLogEnum.CATEGORY_ITEM);
+			log.setEntityID(oldCategoryItem.getId());
+			log.setCompany(company);
+			log.setUpdatedByUser(user);
+			
+			if(!oldCategoryItem.getName().equals(item.getName())){
+				log.setRemarks("Change Item Name from " + oldCategoryItem.getName() + " to " + item.getName());
+				updateLogList.add(log);
+			}
+			
+			if(!oldCategoryItem.getSku().equals(item.getSku())){
+				log.setRemarks("Change SKU from" + oldCategoryItem.getSku() + " to " + item.getSku());
+				updateLogList.add(log);
+			}
+						
+			logDao.batchInsert(updateLogList);
+		}
+		
+		
+		return updateSuccess;
+		
+	}
+	
+
+}

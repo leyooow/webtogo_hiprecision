@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN" "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+
+<taglib>
+	<tlib-version>1.0.0</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>webtogo</short-name>
+	<uri>/webtogo-tags</uri>
+	<display-name>"WebToGo Tags"</display-name>
+	<description><![CDATA["Custom tag library used by webtogo"]]></description>
+          
+	<tag>
+	  <name>styleFirstWord</name>
+	  <tag-class>com.ivant.tags.StyleFirstWord</tag-class>
+	  <body-content>JSP</body-content>
+	  <description><![CDATA[Use a different style on the first word of a given text]]></description>
+	  <attribute> 
+	    <name>text</name>
+	    <required>true</required>
+	    <rtexprvalue>true</rtexprvalue>
+	  </attribute>
+	  <attribute> 
+	    <name>className</name>
+	    <required>true</required>
+	    <rtexprvalue>true</rtexprvalue>
+	  </attribute>
+	  <attribute> 
+	    <name>wordCount</name>
+	    <required>false</required>
+	    <rtexprvalue>true</rtexprvalue>
+	  </attribute>
+	</tag>
+	
+	<tag>
+	  <name>truncateString</name>
+	  <tag-class>com.ivant.tags.TruncateString</tag-class>
+	  <body-content>JSP</body-content>
+	  <description><![CDATA[Truncate a string intelligently limiting it to the number of characters specified]]></description>
+	  <attribute> 
+	    <name>text</name>
+	    <required>true</required>
+	    <rtexprvalue>true</rtexprvalue>
+	  </attribute>
+	  <attribute> 
+	    <name>maxCharacters</name>
+	    <required>true</required>
+	    <rtexprvalue>true</rtexprvalue>
+	  </attribute>
+	  <attribute> 
+	    <name>suffix</name>
+	    <required>false</required>
+	    <rtexprvalue>true</rtexprvalue>
+	  </attribute>
+	</tag>
+	 
+	 <function>
+          <name>multiPageItemMap</name>
+          <function-class>com.ivant.utils.WebtogoUtil</function-class>
+          <function-signature>java.lang.Object multiPageItemMap(com.ivant.cms.entity.MultiPage)</function-signature>
+     </function>
+     
+      <function>
+          <name>websiteSearch</name>
+          <function-class>com.ivant.utils.WebtogoUtil</function-class>
+          <function-signature>java.lang.Object websiteSearch(com.ivant.cms.entity.Company,java.lang.String)</function-signature>
+     </function>
+    
+</taglib>

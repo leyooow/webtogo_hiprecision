@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN" 
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	<constant name="struts.enable.DynamicMethodInvocation" value="false" />
+    <include file="struts-default.xml"/>
+    
+    	<package name="front" namespace="" extends="struts-default">
+ 	
+		 <!-- 
+		 <interceptors>
+	    	<interceptor name="hibernate" class="com.ivant.cms.interceptors.HibernateInterceptor"/> 
+	    	<interceptor name="company" class="com.ivant.cms.interceptors.FrontCompanyInterceptor"/> 
+	         	
+	  		<interceptor-stack name="globalstack">
+				<interceptor-ref name="hibernate" />
+				<interceptor-ref name="company" />
+				<interceptor-ref name="params" />
+				<interceptor-ref name="basicStack" />
+				<interceptor-ref name="logger" />
+				<interceptor-ref name="timer" />
+			</interceptor-stack>
+			     
+	     </interceptors>
+	      -->
+ 	 
+
+    	<global-results>
+    	
+			<result name="suspended" type="redirectAction">
+				<param name="actionName">suspendedSite</param> 
+			</result>
+
+			<result name="pagehide" type="redirectAction">
+				<param name="actionName">pageHidden</param> 
+			</result>
+				
+		</global-results>
+    
+		<action name="suspendedSite" class="com.opensymphony.xwork2.ActionSupport">
+			<result name="success">/suspended.jsp</result>
+		</action>
+
+		<action name="pageHidden" class="com.opensymphony.xwork2.ActionSupport">
+			<result name="success">/pagehidden.jsp</result>
+		</action>
+		            
+		<!-- 
+		<action name="error503" class="com.ivant.cms.action.PageDispatcherAction" method="error503">
+			<interceptor-ref name="globalstack" />
+	    </action>
+	     -->
+		            
+    	</package>
+    	
+    
+    <!-- Add packages here -->  
+	<include file="struts-front-hpds.xml"/>
+	<include file="struts-admin.xml"/>
+	
+</struts>

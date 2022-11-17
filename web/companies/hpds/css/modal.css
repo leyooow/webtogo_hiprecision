@@ -1,0 +1,45 @@
+/* CSS for admin only */
+
+#OverlayContainer {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	background: transparent;
+	left: 0px;
+	top: 0px;
+}
+
+#ModalBox {	
+	width: 700px;
+	margin-left: auto;
+	margin-right: auto;
+	height: 600px;	
+	z-index: 1;
+	margin-top: 100px; 
+	background-color: #F2FCD5;
+	padding: 5px;
+	
+}
+
+#OverlayContainer2{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	background: transparent;
+	left: 0px;
+	top: 100px;
+}
+
+#ModalBox2{	
+	width: 400px;
+	margin-left: auto;
+	margin-right: auto;
+	height: 50px;	
+	z-index: 1;
+	margin-top: 100px; 
+	background-color: #F2FCD5;
+	padding: 5px;
+	
+}

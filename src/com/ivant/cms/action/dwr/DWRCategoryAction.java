@@ -1,0 +1,550 @@
+package com.ivant.cms.action.dwr;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.ivant.cms.action.admin.dwr.AbstractDWRAction;
+import com.ivant.cms.entity.Brand;
+import com.ivant.cms.entity.Category;
+import com.ivant.cms.entity.CategoryItem;
+import com.ivant.cms.entity.CategoryItemOtherField;
+import com.ivant.cms.entity.Group;
+import com.ivant.cms.entity.Language;
+import com.ivant.cms.entity.User;
+import com.ivant.cms.entity.list.ObjectList;
+
+
+public class DWRCategoryAction extends AbstractDWRAction {
+
+	private static final Logger logger = Logger.getLogger(DWRCategoryAction.class);
+	
+	public String loadItemBrandsByCategory(String id) throws Exception {
+		//System.out.println("DWRCategoryAction.loadItemBrandsByCategory........");
+		
+		Set<Brand> brandSet = new HashSet<Brand>();
+		Category category = categoryDelegate.find(Long.parseLong(id));
+		
+		for(Category cat : category.getChildrenCategory()) {
+			brandSet.addAll(cat.getChildrenBrands());
+		}
+		
+		Iterator iterator = brandSet.iterator();
+
+		String select = "<select id='brands' name='brand_id' class='inputSearch'>";
+      	select += "<option value='0'>- - Select - -</option>";
+		while(iterator.hasNext()) {
+			Brand b = (Brand) iterator.next();
+			if(b != null)
+			  select += "<option value='"+ b.getId() + "'>" + b.getName() + "</option>";
+		}
+        select += "</select>";
+		
+        return select;
+	}
+
+	
+	public List<Category> loadChildrenCategory(String id){
+		
+		logger.info("DWRCategoryAction.loadChildrenCategory........");
+
+			String select = "";
+	      	Category category = categoryDelegate.find(Long.parseLong(id));
+	      	logger.info("SIZE IS :: "+category.getChildrenCategory().size());
+			return category.getChildrenCategory();
+		
+	}
+	
+	public List<Brand> loadBrandsOfGroup(String groupId){
+		
+		logger.info("DWRCategoryAction.loadBrandsOfGroup........");
+
+			String select = "";
+			Group group = groupDelegate.find(Long.parseLong(groupId));
+			return group.getBrands();
+		
+	}
+
+	
+	public List<CategoryItem> loadCategoryItems(String id){
+		//System.out.println("DWRCategoryAction.loadCategoryItems........");
+		String select = "";
+      	Category category = categoryDelegate.find(Long.parseLong(id));
+      	
+      	//List<CategoryItem> catItems = categoryItemDelegate.getAllCatItemsNoPaging(company, category, null).getList();
+		return category.getEnabledItems();
+	}
+	
+	public void saveNewOrder(List<Long> items) {	
+		// get all the category items
+		User persistedUser = userDelegate.load(user.getId());
+		List<Category> categories = new ArrayList<Category>();
+		int count = 1;
+		
+		for(Long l : items) {
+			Category itm = categoryDelegate.find(l);
+			itm.setSortOrder(count++);
+			
+			try {
+				if(itm.getCreatedBy()!=null) {
+					
+				} else {itm.setCreatedBy(persistedUser);}
+			} catch (NullPointerException e) {
+				itm.setCreatedBy(persistedUser);
+			}
+			if(itm != null) {
+				try{
+					if(itm.getDescription() == null) itm.setDescription("");
+					if(itm.getName() == null) itm.setName("");
+				}catch(Exception e){}
+				
+				categories.add(itm);
+			}
+			else {
+				logger.fatal("Problem sorting items since some items does not belong to the given company");
+				return;
+			}
+		}
+		// update the database
+		categoryDelegate.batchUpdate(categories); 
+	}
+	
+	public List<CategoryItem> searchCategoryItem(String search ){
+		
+		Group group = new Group();
+		group = groupDelegate.find(company, "Products");				
+			
+		ObjectList<CategoryItem> productItems = new	ObjectList<CategoryItem>();	
+		
+		
+		//if from global search
+		boolean isSearchNotNull = null!=search
+			&&!StringUtils.isEmpty(search);
+		if(isSearchNotNull){
+			List<CategoryItem> searchItem = categoryItemDelegate.searchBySearchTag(search, company);
+			productItems.setList(searchItem);
+			productItems.setTotal(searchItem.size());
+		}else{
+			productItems = categoryItemDelegate.findAllByGroup(company, group);
+		}	
+		
+		
+		//sort by category display order
+		Comparator<CategoryItem> categoryDisplayOrder = new Comparator<CategoryItem>(){
+			@Override
+			public int compare(CategoryItem item1,
+					CategoryItem item2) {
+				Integer sortOrder1 = item1.getParent().getSortOrder();
+				Integer sortOrder2 = item2.getParent().getSortOrder();
+				return sortOrder1.compareTo(sortOrder2);
+			}
+			
+		};
+		Collections.sort(productItems.getList(),categoryDisplayOrder);
+						
+		return productItems.getList();
+	}
+	
+	
+	
+	public ObjectList<CategoryItem> searchAnalytesByKeywordAndGroup(int pageNumber,
+			String keyword, String groupName, String otherFieldName,
+			String otherFieldValue, String otherFieldCompator,String languageString) {
+		
+		final int max = 20;
+		//final int max = company.getCompanySettings().getProductsPerPage();
+		System.out.println("Comany: " + company.getName() + " - Max per page: " + max);
+		
+		Language language = null;
+		if (!languageString.equals("default")) {
+			language = languageDelegate.find(languageString, company);
+		} 
+		
+		ObjectList<CategoryItem> allItems = new ObjectList<CategoryItem>();
+		Group group = groupDelegate.find(company, groupName);
+		
+		if(keyword.length() != 0){
+			
+			System.out.println("WITH KEYWORD!");
+			allItems = categoryItemDelegate.findAllAnalytesByGroupAndKeywordByMachineWithPaging(
+							pageNumber - 1, max, keyword, company, true, group,
+							otherFieldName, otherFieldValue, otherFieldCompator);
+			
+			
+			if (!languageString.equals("default")) {
+				List<CategoryItem> allItemsTempList = new ArrayList<CategoryItem>();
+				for(CategoryItem categoryItem: allItems.getList()){
+					categoryItem.setLanguage(language);
+					allItemsTempList.add(categoryItem);
+				}
+				allItems.setList(allItemsTempList);
+				logger.info("allItems: " + allItems);
+			}
+		}
+		
+		else{
+			System.out.println("NO KEYWORD!");
+			
+			List<Long> allIds = categoryItemDelegate.searchAllAnalytesIdsByGroupAndOtherFieldWithPaging(
+										-1, -1, keyword, company, group, otherFieldName,
+										otherFieldValue, otherFieldCompator);
+			logger.info(allIds);
+			List<Long> masterList = new ArrayList<Long>();
+			
+			List<Long> updatedIds = categoryItemDelegate.searchHipreAnalytesUpdatedItems(-1, -1, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+			List<Long> createdIds = categoryItemDelegate.searchHipreaAnalytesCreatedItems(-1, -1, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+			
+			List<Long> finalUpdatedIds = new ArrayList<Long>();
+			
+			
+			
+			
+			if(createdIds != null && !createdIds.isEmpty()){
+				masterList.addAll(createdIds);
+			}
+			if(updatedIds != null && !updatedIds.isEmpty()){
+
+				for(Long list : updatedIds){
+					
+					if(!createdIds.contains(list)){
+						finalUpdatedIds.add(list);
+					}
+				}
+				masterList.addAll(finalUpdatedIds);
+			}
+			
+			logger.info("createdIds: " + createdIds);
+			logger.info("updatedIds: " + updatedIds);
+			logger.info("finalUpdatedIds: " + finalUpdatedIds);
+			/**/
+			
+			logger.info("allIds: " + allIds);
+			masterList.addAll(allIds);
+			logger.info("masterList: " + masterList);
+			
+			
+			logger.info("max: " + max);
+			logger.info("pageNumber: " + pageNumber);
+			int toIndex =(max*pageNumber) - 1;
+			
+			int fromIndex = toIndex - max + 1;
+			List<Long> selectedItemsList = new ArrayList<Long>();
+			
+			System.out.println("fromIndex: " + fromIndex);
+			System.out.println("toIndex: " + toIndex);
+			
+			int masterListSize = masterList.size();
+			if(masterListSize < toIndex)
+				selectedItemsList = masterList.subList(fromIndex, masterListSize);
+			else
+				selectedItemsList = masterList.subList(fromIndex, toIndex);
+				
+
+			logger.info("selectedItemsList size: " + selectedItemsList.size());
+			
+			List<CategoryItem> allItemsTempList = new ArrayList<CategoryItem>();
+			allItemsTempList = categoryItemDelegate.findNoLoop(selectedItemsList);
+
+			Map <Long, CategoryItem> map = new HashMap<Long, CategoryItem>();
+			for(CategoryItem tempItem: allItemsTempList){
+				map.put(tempItem.getId(), tempItem);
+			}
+			
+			List<CategoryItem> allItemsFinalList = new ArrayList<CategoryItem>();
+			
+			for(Long id : selectedItemsList){
+				allItemsFinalList.add(map.get(id));
+			}
+			
+			allItems.setList(allItemsFinalList);
+			allItems.setTotal(masterList.size());
+		}
+
+		return allItems;
+	}
+	
+
+	public ObjectList<CategoryItem> searchLabFileByKeywordAndGroup(int pageNumber,
+			String keyword, String groupName, String otherFieldName,
+			String otherFieldValue, String otherFieldCompator,String languageString) {
+		
+		final int max = 20;
+		//final int max = company.getCompanySettings().getProductsPerPage();
+		System.out.println("Comany: " + company.getName() + " - Max per page: " + max);
+		
+		Language language = null;
+		if (!languageString.equals("default")) {
+			language = languageDelegate.find(languageString, company);
+		} 
+		
+		ObjectList<CategoryItem> allItems = new ObjectList<CategoryItem>();
+		Group group = groupDelegate.find(company, groupName);
+		
+		if(group != null) {
+			System.out.println("Group Name: " + group.getName());
+		}else {
+			System.out.println("Group NOT FOUND!");
+		}
+		
+		if(keyword.length() != 0){
+			System.out.println("WITH KEYWORD!");
+			allItems = categoryItemDelegate.findAllLabFileByGroupAndKeywordByMachineWithPaging(
+							pageNumber - 1, max, keyword, company, true, group,
+							otherFieldName, otherFieldValue, otherFieldCompator);
+			
+			
+			if (!languageString.equals("default")) {
+				List<CategoryItem> allItemsTempList = new ArrayList<CategoryItem>();
+				for(CategoryItem categoryItem: allItems.getList()){
+					categoryItem.setLanguage(language);
+					allItemsTempList.add(categoryItem);
+				}
+				allItems.setList(allItemsTempList);
+				logger.info("allItems: " + allItems);
+			}
+		
+		}else{
+			
+			System.out.println("NO KEYWORD!");
+			
+			List<Long> allIds = categoryItemDelegate.searchAllLabFileIdsByGroupAndOtherFieldWithPaging(
+										-1, -1, keyword, company, group, otherFieldName,
+										otherFieldValue, otherFieldCompator);
+			logger.info(allIds);
+			List<Long> masterList = new ArrayList<Long>();
+			
+			List<Long> createdIds = categoryItemDelegate.searchHipreaLabFileCreatedItems(-1, -1, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+			List<Long> updatedIds = categoryItemDelegate.searchHipreLabFileUpdatedItems(-1, -1, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+			
+			List<Long> finalUpdatedIds = new ArrayList<Long>();
+			
+			System.out.println("createdIds: " + createdIds);
+			System.out.println("updatedIds: " + updatedIds);
+			
+			
+			if(createdIds != null && !createdIds.isEmpty()){
+				masterList.addAll(createdIds);
+			}
+			if(updatedIds != null && !updatedIds.isEmpty()){
+
+				for(Long list : updatedIds){
+					
+					if(!createdIds.contains(list)){
+						finalUpdatedIds.add(list);
+					}
+				}
+				masterList.addAll(finalUpdatedIds);
+			}
+			
+			logger.info("createdIds: " + createdIds);
+			logger.info("updatedIds: " + updatedIds);
+			logger.info("finalUpdatedIds: " + finalUpdatedIds);
+			/**/
+			
+			logger.info("allIds: " + allIds);
+			masterList.addAll(allIds);
+			logger.info("masterList: " + masterList);
+			
+			
+			logger.info("max: " + max);
+			logger.info("pageNumber: " + pageNumber);
+			int toIndex =(max*pageNumber) - 1;
+			
+			int fromIndex = toIndex - max + 1;
+			List<Long> selectedItemsList = new ArrayList<Long>();
+			
+			System.out.println("fromIndex: " + fromIndex);
+			System.out.println("toIndex: " + toIndex);
+			
+			int masterListSize = masterList.size();
+			if(masterListSize < toIndex)
+				selectedItemsList = masterList.subList(fromIndex, masterListSize);
+			else
+				selectedItemsList = masterList.subList(fromIndex, toIndex);
+				
+
+			logger.info("selectedItemsList size: " + selectedItemsList.size());
+			
+			List<CategoryItem> allItemsTempList = new ArrayList<CategoryItem>();
+			allItemsTempList = categoryItemDelegate.findNoLoop(selectedItemsList);
+
+			Map <Long, CategoryItem> map = new HashMap<Long, CategoryItem>();
+			for(CategoryItem tempItem: allItemsTempList){
+				map.put(tempItem.getId(), tempItem);
+			}
+			
+			List<CategoryItem> allItemsFinalList = new ArrayList<CategoryItem>();
+			
+			for(Long id : selectedItemsList){
+				allItemsFinalList.add(map.get(id));
+			}
+			
+			allItems.setList(allItemsFinalList);
+			allItems.setTotal(masterList.size());
+		}
+
+		return allItems;
+	}
+	
+	public ObjectList<CategoryItem> searchByKeywordAndGroup(int pageNumber,
+			String keyword, String groupName, String otherFieldName,
+			String otherFieldValue, String otherFieldCompator,String languageString) {
+		
+		final int max = company.getCompanySettings().getProductsPerPage();
+
+		Language language = null;
+		if (!languageString.equals("default")) {
+			language = languageDelegate.find(languageString, company);
+		} 
+		
+		ObjectList<CategoryItem> allItems = new ObjectList<CategoryItem>();
+		Group group = groupDelegate.find(company, groupName);
+		
+		if(keyword.length() != 0){
+			
+			allItems = categoryItemDelegate.findAllByGroupAndKeywordWithPaging(
+							pageNumber - 1, max, keyword, company, true, group,
+							otherFieldName, otherFieldValue, otherFieldCompator);
+			
+			
+			if (!languageString.equals("default")) {
+				List<CategoryItem> allItemsTempList = new ArrayList<CategoryItem>();
+				for(CategoryItem categoryItem: allItems.getList()){
+					categoryItem.setLanguage(language);
+					allItemsTempList.add(categoryItem);
+				}
+				allItems.setList(allItemsTempList);
+				logger.info("allItems: " + allItems);
+			}
+		}
+		
+		else{
+			List<Long> allIds = categoryItemDelegate.searchAllIdsByGroupAndOtherFieldWithPaging(
+										-1, -1, keyword, company, group, otherFieldName,
+										otherFieldValue, otherFieldCompator);
+			logger.info(allIds);
+			
+			List<Long> createdIds = categoryItemDelegate.searchHipreCreatedItems(-1, -1, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+			List<Long> updatedIds = categoryItemDelegate.searchHipreUpdatedItems(-1, -1, keyword, company, group, otherFieldName, otherFieldValue, otherFieldCompator);
+			List<Long> finalUpdatedIds = new ArrayList<Long>();
+			
+			logger.info(updatedIds);
+			
+			List<Long> masterList = new ArrayList<Long>();
+			
+			if(createdIds != null && !createdIds.isEmpty()){
+				masterList.addAll(createdIds);
+			}
+			if(updatedIds != null && !updatedIds.isEmpty()){
+				
+				/*for(Long list1: updatedIds){
+					int i = 1;
+					for(Long list2: createdIds){
+						if(list1 == list2){
+							break;
+						}
+						else if(i++ == createdIds.size()){
+							finalUpdatedIds.add(list1);
+						}
+					}
+				}*/
+				
+				for(Long list : updatedIds){
+					
+					if(!createdIds.contains(list)){
+						finalUpdatedIds.add(list);
+					}
+				}
+				masterList.addAll(finalUpdatedIds);
+			}
+			
+			logger.info("createdIds: " + createdIds);
+			logger.info("updatedIds: " + updatedIds);
+			logger.info("finalUpdatedIds: " + finalUpdatedIds);
+			masterList.addAll(allIds);
+			
+			//masterList.size()/max;
+			
+			int pageNumberIndex = pageNumber - 1;
+			
+			/*int pageCount = 0;
+			int itemRemainder = masterList.size() % max;
+			
+			if (masterList.size() % max == 0){
+				pageCount = masterList.size() / max;
+			}
+			else{
+				pageCount = masterList.size()/ max + 1;
+			}*/
+			
+			int toIndex =(max*pageNumber) - 1;
+			
+			int fromIndex = toIndex - max + 1;
+			List<Long> selectedItemsList = new ArrayList<Long>();
+			selectedItemsList = masterList.subList(fromIndex, toIndex);
+
+			logger.info("selectedItemsList size: " + selectedItemsList.size());
+			
+			List<CategoryItem> allItemsTempList = new ArrayList<CategoryItem>();
+			allItemsTempList = categoryItemDelegate.findNoLoop(selectedItemsList);
+			/*for(Long item: selectedItemsList){
+				CategoryItem categoryItem = categoryItemDelegate.find(item);
+				allItemsTempList.add(categoryItem);
+			}*/
+			Map <Long, CategoryItem> map = new HashMap<Long, CategoryItem>();
+			for(CategoryItem tempItem: allItemsTempList){
+				map.put(tempItem.getId(), tempItem);
+			}
+			
+			List<CategoryItem> allItemsFinalList = new ArrayList<CategoryItem>();
+			
+			for(Long id : selectedItemsList){
+				allItemsFinalList.add(map.get(id));
+			}
+			
+			allItems.setList(allItemsFinalList);
+			allItems.setTotal(masterList.size());
+		}
+
+		return allItems;
+	}
+	
+	public CategoryItem getCategoryItemById(Long id , String languageString){
+		CategoryItem categoryItem = new CategoryItem();
+		
+		Language language = null;
+
+		if (!languageString.equals("default")) {
+			language = languageDelegate.find(languageString, company);
+		}
+		
+		categoryItem = categoryItemDelegate.find(id);
+		categoryItem.setLanguage(language);
+		
+		if (!languageString.equals("default")) {
+			List<CategoryItemOtherField> categoryItemOtherFieldList = new ArrayList<CategoryItemOtherField>();
+			
+			for(CategoryItemOtherField categoryItemOtherField : categoryItem.getCategoryItemOtherFields()){
+				
+				categoryItemOtherField.setLanguage(language);
+				categoryItemOtherFieldList.add(categoryItemOtherField);
+			}
+			
+			final Set<CategoryItemOtherField> set = new HashSet<CategoryItemOtherField>(categoryItemOtherFieldList);
+			categoryItem.setCategoryItemOtherFields(set);
+		}
+		
+				
+		return categoryItem;
+	}
+
+}

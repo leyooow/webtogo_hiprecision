@@ -1,0 +1,1043 @@
+package com.ivant.cms.entity;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.apache.commons.lang3.text.WordUtils;
+import org.hibernate.annotations.CollectionOfElements;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
+import org.joda.time.DateTime;
+import org.json.JSONArray;
+import org.json.simple.JSONAware;
+import org.json.simple.JSONObject;
+
+import com.ivant.cms.delegate.CategoryItemDelegate;
+import com.ivant.cms.delegate.ItemAttributeDelegate;
+import com.ivant.cms.delegate.MemberPollDelegate;
+import com.ivant.cms.entity.baseobjects.CompanyBaseObject;
+import com.ivant.cms.interfaces.CompanyAware;
+import com.ivant.utils.HTMLTagStripper;
+
+@Entity(name="CategoryItem")
+@Table(name="category_item")
+public class CategoryItem extends CompanyBaseObject implements Cloneable, CompanyAware, JSONAware {
+
+	private Category parent;
+	private Group parentGroup;
+	private Brand brand;
+	private String name;
+	private String shortDescription;
+	private String description;
+	private String otherDetails;
+	private String sku;
+	private Double shippingPrice;
+	private Double weight;
+	private double price;
+	private CategoryItemPriceName categoryItemPriceName;
+	private String unitOfMeasure;
+	private int sortOrder = 1;
+	private boolean disabled;
+	private boolean featured;
+	private boolean bestSeller;
+	private boolean isOutOfStock;
+	private Boolean validForUSCanadaDelivery;
+	private Integer availableQuantity;
+	private OtherDetail otherDetail;
+	private List<ItemImage> images;
+	private List<ItemVariation> variations;
+	private boolean hasFile = false;
+	private List<ItemFile> files;
+	private Date itemDate;
+	private Long realID;
+	private String searchTags;
+	private String otherTags;
+	private List<ItemAttribute> attributes;
+	private List<ItemComment> comments;
+	private List<CategoryItemComponent> categoryItemComponentList;
+	private String meta_keywords;
+	private String meta_title;
+	private String meta_description;
+	private Map<String, String> itemDetailMap;
+	
+	ItemAttribute itemAttribute;
+	List<ItemAttribute> itemAttributes;
+	ItemAttributeDelegate itemAttributeDelegate = ItemAttributeDelegate.getInstance();
+	private CategoryItemDelegate categoryItemDelegate = CategoryItemDelegate.getInstance();
+	
+	private MemberPollDelegate memberPollDelegate = MemberPollDelegate.getInstance();
+	
+	HashMap<String, ItemAttribute> attributeMap;
+	
+	private transient List<CategoryItemPackage> categoryItemPackages;
+	
+	
+	private transient List<CategoryItemPrice> categoryItemPrices;
+	private transient Set<CategoryItemOtherField> categoryItemOtherFields;
+	private transient Integer orderQuantity;
+	private transient List<Schedule> schedules;
+	private  List<CategoryItemLanguage> categoryItemLanguageList;
+	
+	protected transient Language language;
+	
+	private List<Long> subCategoryItems;
+	
+	//@Formula(value = "Select count(*) from members_polls m where m.category_item_id = id and polly_type = 'Recommend' and remarks = 1")
+	private List<MemberPoll> recommendations;
+	private Integer totalRecommendations;
+	private Integer remainingFreebiesDays;
+	private Double savings;
+	
+	// For other Info
+	
+	private String info1;
+	
+	
+	// For Branches
+	private List<CategoryItemOtherFieldBranch> branches;
+	
+	// For Machines
+	private List<CategoryItemOtherFieldMachine> machines;
+	
+	private static final NumberFormat DEFAULT_DECIMAL_FORMAT = new DecimalFormat ("#,##0.00");
+	
+	@Basic
+	@Column(name = "info1", nullable=true)
+	public String getInfo1() {
+		return info1;
+	}
+	public void setInfo1(String info1) {
+		this.info1 = info1;
+	}
+	public void setLanguage(Language language) {
+		this.language = language;
+	}
+	@Transient
+	public Language getLanguage() {
+		return language;
+	}
+	
+	/**
+	 * Returns if a current item is complete.
+	 * @author Samiel Gerard C. Santos
+	 * @return true if complete.
+	 */
+	@Transient
+	public boolean isComplete() {
+		if(this.getName() == null) return false;
+		if(this.getImages().isEmpty()) return false;
+		if(this.getPrice() == 0) return false;
+		if(this.getDescription() == null) return false;
+		if(this.getShortDescription() == null) return false;
+		
+		return true;
+	}
+
+	@Transient
+	public ItemDetail getItemDetail(){
+		ItemDetail itemDetail = new ItemDetail();
+		itemDetail.setDescription(description);
+		if(getCompany() != null)
+			if(getCompany().getName().equals("giftcard") || getCompany().getName().equals("ecommerce"))
+			{
+				itemDetail.setDescription(getShortDescriptionWithoutTags());
+			}
+		if(null != images && !images.isEmpty())
+			itemDetail.setImage(images.get(0).toString());
+		itemDetail.setName(name);
+		itemDetail.setPrice(price);
+		itemDetail.setSku(sku);
+		itemDetail.setRealID(realID);
+		itemDetail.setWeight(weight);
+		return itemDetail;
+	}
+	
+	
+	@Basic
+	@Column(name="has_file", nullable=true)
+	public boolean getHasFile() {
+		return hasFile;
+	}
+
+	
+	public void setHasFile(boolean hasFile) {
+		this.hasFile = hasFile;
+	}
+
+	@OneToMany(targetEntity = ItemFile.class, mappedBy = "item", fetch = FetchType.LAZY)
+	@Where(clause = "valid=1")
+	@OrderBy("sortOrder asc")
+	public List<ItemFile> getFiles() {
+		return files;
+	}
+	
+	public void setFiles(List<ItemFile> files) {
+		this.files = files;
+	}
+	
+	@OneToMany(targetEntity = ItemComment.class, mappedBy = "item", fetch = FetchType.LAZY)
+	@Where(clause = "valid=1")
+	@OrderBy("id desc")
+	public List<ItemComment> getComments() {
+		return comments;
+	}
+
+	public void setComments(List<ItemComment> comments) {
+		this.comments = comments;
+	}
+	
+	@OneToMany(targetEntity = CategoryItemComponent.class, mappedBy = "categoryItem", fetch = FetchType.LAZY)
+	@Where(clause = "valid=1")
+	@OrderBy("id asc")
+	public List<CategoryItemComponent> getCategoryItemComponentList() {
+		return categoryItemComponentList;
+	}
+
+	public void setCategoryItemComponentList(
+			List<CategoryItemComponent> categoryItemComponentList) {
+		this.categoryItemComponentList = categoryItemComponentList;
+	}
+
+	public CategoryItem() {
+		disabled = false;
+		featured = false;
+		bestSeller = false;
+		isOutOfStock = false;
+	}
+	
+	@Basic
+	@Column(name="name", length=255, nullable=false)
+	public String getName() {
+		
+		if(getCategoryItemLanguageList()!=null && language!=null){
+			for(CategoryItemLanguage temp :getCategoryItemLanguageList()){
+				if(temp.getLanguage().equals(this.language))
+					return temp.getName();
+			}
+		}
+		
+		if(name != null){
+			if(getCompany() != null) {
+				if(getCompany().getName() != null){
+					if(getCompany().getName().equalsIgnoreCase("gurkkatest")){
+						return name.replace("'", "&rsquo;").replace("�", "&rsquo;");
+					}
+				}
+			}
+		}
+		
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name.replace("�", "'");;
+	}
+
+	@Basic
+	@Column(name = "description", length=2147483647)
+	public String getDescription() {
+		if(getCategoryItemLanguageList()!=null && language!=null){
+			for(CategoryItemLanguage temp :getCategoryItemLanguageList()){
+				if(temp.getLanguage().equals(this.language))
+					return temp.getDescription();
+			}
+		}
+		
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Basic
+	@Column(name = "sku", length=30)
+	public String getSku() {
+		return sku;
+	}
+
+	public void setSku(String sku) {
+		this.sku = sku;
+	}
+ 
+	@Basic
+	@Column(name = "price")
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
+	}
+	
+	@ManyToOne(targetEntity = CategoryItemPriceName.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "category_item_price_name_id", insertable = true, updatable = true)
+	@ForeignKey(name = "FK_CATEGORYITEMPRICENAME_CATEGORYITEM")
+	@NotFound(action = NotFoundAction.IGNORE)
+	public CategoryItemPriceName getCategoryItemPriceName() {
+		return categoryItemPriceName;
+	}
+
+	public void setCategoryItemPriceName(CategoryItemPriceName categoryItemPriceName) {
+		this.categoryItemPriceName = categoryItemPriceName;
+	}
+	
+	@Basic
+	@Column(name = "unit_of_measure")
+	public String getUnitOfMeasure() {
+		return unitOfMeasure;
+	}
+
+	public void setUnitOfMeasure(String unitOfMeasure) {
+		this.unitOfMeasure = unitOfMeasure;
+	}
+
+	/*@Basic
+	@Column(name = "price2")
+	public Double getPrice2() {
+		return price2;
+	}
+
+	public void setPrice2(Double price2) {
+		this.price2 = price2;
+	}
+*/
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="item_date", nullable=true)
+	public Date getItemDate() {
+		return itemDate;
+	}
+	
+	
+	public void setItemDate(Date date) {
+		this.itemDate = date;		
+	}
+
+	@Basic 
+	@Column(name = "sort_order", nullable=false)
+	public int getSortOrder() {
+		return sortOrder;
+	}
+
+	public void setSortOrder(int sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+	
+	@ManyToOne(targetEntity = Category.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "parent", nullable=false)
+	@NotFound(action = NotFoundAction.IGNORE) 
+	public Category getParent() {
+		return parent;
+	}
+
+	public void setParent(Category parent) {
+		this.parent = parent;
+	}
+		
+	@ManyToOne(targetEntity = Group.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "parent_group", nullable=false)
+	@NotFound(action = NotFoundAction.IGNORE) 
+	public Group getParentGroup() {
+		return parentGroup;
+	}
+
+	public void setParentGroup(Group parentGroup) {
+		this.parentGroup = parentGroup;
+	}
+	
+	@Basic
+	@Column(name = "disabled", nullable=false)
+	public boolean getDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+	
+	@Basic
+	@Column(name = "featured", nullable=false)
+	public boolean getFeatured() {
+		return featured;
+	}
+
+	public void setFeatured(boolean featured) {
+		this.featured = featured;
+	}
+
+	@Basic
+	@Column(name = "best_seller", nullable=false)
+	public boolean getBestSeller() {
+		return bestSeller;
+	}
+
+	public void setBestSeller(boolean bestSeller) {
+		this.bestSeller = bestSeller;
+	}
+
+	@Basic
+	@Column(name = "isOutOfStock", nullable=false)
+	public boolean getIsOutOfStock() {
+		return isOutOfStock;
+	}
+
+	public void setIsOutOfStock(boolean isOutOfStock) {
+		this.isOutOfStock = isOutOfStock;
+	}
+	
+	@Basic
+	@Column(name="validForUSCanadaDelivery", nullable=true)
+	public Boolean getValidForUSCanadaDelivery() {
+		return validForUSCanadaDelivery;
+	}
+
+	
+	public void setValidForUSCanadaDelivery(Boolean validForUSCanadaDelivery) {
+		this.validForUSCanadaDelivery = validForUSCanadaDelivery;
+	}	
+
+	@Basic
+	@Column(name = "available_quantity")
+	public Integer getAvailableQuantity() {
+		if(availableQuantity == null)
+		{
+			availableQuantity = 0;
+		}
+		return availableQuantity;
+	}
+
+	public void setAvailableQuantity(Integer availableQuantity) {
+		this.availableQuantity = availableQuantity;
+	}
+	
+	@ManyToOne(targetEntity = OtherDetail.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "other_detail", nullable=true)
+	@NotFound(action = NotFoundAction.IGNORE) 
+	public OtherDetail getOtherDetail() {
+		return otherDetail;
+	}
+	
+	public void setOtherDetail(OtherDetail otherDetail) {
+		this.otherDetail = otherDetail;
+	}
+	
+	@OneToMany(targetEntity = ItemImage.class, mappedBy = "item", fetch = FetchType.LAZY)
+	@Where(clause = "valid=1")
+	@OrderBy("sortOrder asc")
+	public List<ItemImage> getImages() {
+		return images;
+	}
+
+	public void setImages(List<ItemImage> images) {
+		this.images = images;
+	}
+	
+	
+	@OneToMany(targetEntity = CategoryItemOtherFieldBranch.class, mappedBy = "categoryItemBranch", fetch = FetchType.LAZY)
+	@Where(clause = "valid=1")
+	public List<CategoryItemOtherFieldBranch> getBranches() {
+		return branches;
+	}
+
+	public void setBranches(List<CategoryItemOtherFieldBranch> branches) {
+		this.branches = branches;
+	}
+	
+	@OneToMany(targetEntity = CategoryItemOtherFieldMachine.class, mappedBy = "categoryItemMachine", fetch = FetchType.LAZY)
+	@Where(clause = "valid=1")
+	public List<CategoryItemOtherFieldMachine> getMachines() {
+		return machines;
+	}
+
+	public void setMachines(List<CategoryItemOtherFieldMachine> machines) {
+		this.machines = machines;
+	}
+	
+	
+	@Basic
+	@Column(name="short_description", length=4000)
+	public String getShortDescription() {
+		if(getCategoryItemLanguageList()!=null && language!=null){
+			for(CategoryItemLanguage temp :getCategoryItemLanguageList()){
+				if(temp.getLanguage().equals(this.language))
+					return temp.getShortDescription();
+			}
+		}
+		return shortDescription;
+	}
+
+	public void setShortDescription(String shortDescription) {
+		this.shortDescription = shortDescription;
+	}
+	
+	@Transient
+	public String getMetaDescription() {
+		String metaDescription = getShortDescription();
+		if(metaDescription != null)
+		{
+			metaDescription = metaDescription.replaceAll("\\<.*?>","");
+			metaDescription = metaDescription.replaceAll("\\&.*?\\;","");
+			return metaDescription;
+		}
+		else
+			return "";
+		
+	}
+
+	@ManyToOne(targetEntity = Brand.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "brand")
+	@NotFound(action = NotFoundAction.IGNORE) 
+	public Brand getBrand() {
+		return brand;
+	}
+
+	public void setBrand(Brand brand) {
+		this.brand = brand;
+	}
+	
+	@OneToMany(targetEntity=ItemVariation.class, fetch=FetchType.LAZY, mappedBy="categoryItem")
+	@Where(clause = "valid=1") 
+	public List<ItemVariation> getVariations() {
+		return variations;
+	}
+	
+	public void setVariations(List<ItemVariation> variations) {
+		this.variations = variations;
+	}
+
+	@Transient
+	public List<List<String>> getVariationGroups() {
+		List<ItemVariation> variations = this.getVariations();
+		
+		String[] variationItems = variations.get(0).getName().split("\\|");
+		int variationCount = variationItems.length;
+		
+		if(variationCount == 0) {
+			throw new IllegalStateException("Variation count should be more than 1");
+		}
+		
+		List<Set<String>> variationGroups = new ArrayList<Set<String>>();
+		for(int i=0; i<variationCount; i++) {
+			variationGroups.add(new HashSet<String>());
+		}
+		
+		for(ItemVariation variation : variations) {
+			String[] variationItemsLocal = variation.getName().split("\\|");
+			for(int i=0; i<variationCount; i++) {
+				Set<String> variationOptions = variationGroups.get(i);
+				variationOptions.add(variationItemsLocal[i]);
+			}
+		}
+		 
+		List<List<String>> result = new ArrayList<List<String>>();
+		
+ 		for(Set<String> ss: variationGroups) {
+ 			result.add(new ArrayList<String>(ss));
+		}
+		 	
+		return result;
+	}
+	
+	@Override
+	public String toString() {	
+		return  " id: " + getId() + "\n" +
+				" name: " + getName() + "\n" +
+				" company: " + ((getCompany()!= null) ? getCompany().getName() : "null") + "\n" +
+				" parent: " + ((getParent()!= null) ? getParent().getName() : "null") + "\n" +
+				" desc: " + getDescription() + "\n" +
+				" sku: " + getSku() + "\n" +
+				" price: " + getPrice()+ "\n" +
+			//	" price2: " + getPrice2()  + "\n" +
+				" sort: " + getSortOrder() + "\n" +
+				" disabled: " + getDisabled()+ "\n" +
+				" featured: " + getFeatured()+ "\n" +
+				" attributes " + getAttributes();
+	}
+
+	
+	@Basic
+	@Column(name = "other_details", length=2147483647)	
+	public String getOtherDetails() {
+		if(getCategoryItemLanguageList()!=null && language!=null){
+			for(CategoryItemLanguage temp :getCategoryItemLanguageList()){
+				if(temp.getLanguage().equals(this.language))
+					return temp.getOtherDetails();
+			}
+		}
+		return otherDetails;
+	}
+
+	public void setOtherDetails(String otherDetails) {
+		this.otherDetails = otherDetails;
+	}
+	
+	@Basic
+	@Column(name = "search_tags", length=2147483647)	
+	public String getSearchTags() {
+		return searchTags;
+	}
+
+	public void setSearchTags(String searchTags) {
+		this.searchTags = searchTags;
+	}
+	
+	@Basic
+	@Column(name = "other_tags", length=2147483647)
+	public String getOtherTags() {
+		return otherTags;
+	}
+	
+	public void setOtherTags(String otherTags) {
+		this.otherTags  = otherTags;
+	}
+	
+	@OneToMany(targetEntity = ItemAttribute.class, mappedBy = "categoryItem", fetch = FetchType.LAZY)
+	@Where(clause = "valid=1")
+	@NotFound(action=NotFoundAction.IGNORE)
+	public List<ItemAttribute> getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(List<ItemAttribute> attributes) {
+		this.attributes = attributes;
+	}
+
+	public void setShippingPrice(Double shippingPrice) {
+		this.shippingPrice = shippingPrice;
+	}
+
+	public Double getShippingPrice() {
+		return shippingPrice;
+	}	
+
+	@Basic
+	@Column(name = "weight")
+	public Double getWeight() {
+		return weight;
+	}
+
+	public void setWeight(Double weight) {
+		this.weight = weight;
+	}
+
+	@Transient
+	public HashMap<String,ItemAttribute> getAttributeMap() {
+
+		CategoryItem item = categoryItemDelegate.find(this.getId());
+		attributeMap = new HashMap<String,ItemAttribute>();
+		
+		itemAttributes = item.getAttributes();
+		for(ItemAttribute itemAtt: itemAttributes) {
+			attributeMap.put(itemAtt.getAttribute().getName(), itemAtt);
+		}
+		return attributeMap;
+	} 
+	
+	/**
+	 * Get the category item packages.
+	 * 
+	 * @return the category item packages
+	 */
+	@OneToMany(targetEntity = CategoryItemPackage.class, mappedBy="categoryItem", fetch=FetchType.LAZY)
+	@Fetch(FetchMode.SELECT)
+	@NotFound(action=NotFoundAction.IGNORE)	
+	@Where(clause="valid = 1")	
+	public List<CategoryItemPackage> getCategoryItemPackages()
+	{
+		return categoryItemPackages;
+	}
+	
+	/**
+	 * Set the category item packages.
+	 * 
+	 * @param category item packages
+	 */
+	public void setCategoryItemPackages(List<CategoryItemPackage> categoryItemPackages)
+	{
+		this.categoryItemPackages = categoryItemPackages;
+	}
+	
+	/**
+	 * Get the category item prices.
+	 * 
+	 * @return the category item prices
+	 */
+	@OneToMany(targetEntity = CategoryItemPrice.class, mappedBy="categoryItem", fetch=FetchType.LAZY)
+	@Fetch(FetchMode.SELECT)
+	@NotFound(action=NotFoundAction.IGNORE)	
+	@Where(clause="valid = 1")	
+	@OrderBy("categoryItemPriceName")
+	public List<CategoryItemPrice> getCategoryItemPrices()
+	{
+		return categoryItemPrices;
+	}
+	
+	/**
+	 * Set the category item prices.
+	 * 
+	 * @param category item prices
+	 */
+	public void setCategoryItemPrices(List<CategoryItemPrice> categoryItemPrices)
+	{
+		this.categoryItemPrices = categoryItemPrices;
+	}
+	
+	/**
+	 * Get the category item other fields.
+	 * 
+	 * @return the category item other fields
+	 */
+	@OneToMany(targetEntity = CategoryItemOtherField.class, mappedBy="categoryItem", fetch=FetchType.LAZY)
+	@Fetch(FetchMode.SELECT)
+	@NotFound(action=NotFoundAction.IGNORE)	
+	@Where(clause="valid = 1")		
+	public Set<CategoryItemOtherField> getCategoryItemOtherFields()
+	{
+		return categoryItemOtherFields;
+	}
+	
+	/**
+	 * Set the category item other fields.
+	 * 
+	 * @param category item other fields
+	 */
+	public void setCategoryItemOtherFields(Set<CategoryItemOtherField> categoryItemOtherFields)
+	{
+		this.categoryItemOtherFields = categoryItemOtherFields;
+	}
+	
+	@Transient
+	public Map<String, CategoryItemOtherField> getCategoryItemOtherFieldMap() {
+		
+		Map<String, CategoryItemOtherField> map = new HashMap<String, CategoryItemOtherField>();
+		
+		for(CategoryItemOtherField field : getCategoryItemOtherFields()) {
+			map.put(field.getOtherField().getName(), field);
+		}
+		
+		return map;
+	}
+	
+	@Transient
+	public Map<String, CategoryItemPrice> getCategoryItemPricesMap() {
+		Map<String, CategoryItemPrice> map = new HashMap<String, CategoryItemPrice>();
+		for(CategoryItemPrice price : getCategoryItemPrices()){
+			map.put(price.getCategoryItemPriceName().getName(), price);
+		}
+		return map;
+	}
+	
+	@OneToMany(targetEntity = MemberPoll.class, mappedBy = "categoryItem", fetch = FetchType.LAZY)
+	@Where(clause = "valid=1 and polly_type = 'Recommend' and remarks=1")
+	@OrderBy("id asc")
+	public List<MemberPoll> getRecommendations() {
+		return recommendations;
+	}
+	public void setRecommendations(List<MemberPoll> recommendations) {
+		this.recommendations = recommendations;
+	}
+	
+	@Formula("(Select count(*) from members_polls m where m.category_item_id = id and m.polly_type = 'Recommend' and m.remarks = '1')")
+	public Integer getTotalRecommendations(){
+		return totalRecommendations;
+	}
+	
+	public void setTotalRecommendations(Integer totalRecommendations){
+		this.totalRecommendations = totalRecommendations;
+	}
+	
+	@Formula("(Select price-cp.amount from category_item c, category_item_price cp where cp.category_item_id = id and cp.category_item_price_name_id = 143 and c.id = id limit 1)")
+	public Double getSavings(){
+		return savings;
+	}
+	
+	public void setSavings(Double savings){
+		this.savings = savings;
+	}
+	
+	//@Formula("(select (case when item_date >= NOW() then DATEDIFF(NOW(), item_date) when NOW() > item_date then DATEDIFF(NOW(), DATE_ADD(item_date, INTERVAL (((DATEDIFF(item_date, NOW()) DIV 7)+1)*7) DAY) ) END) from category_item )")
+	//@Formula("(Select (case when item_date >= NOW() then DATEDIFF(NOW(), item_date) ELSE 1 END) from category_item c where c.id = id and sku = 'Freebies' and item_date not null)")
+	public Integer getRemainingFreebiesDays() {
+		return remainingFreebiesDays;
+		//return categoryItemDelegate.getFreebiesRemainingDaysCount(this).intValue();
+	}
+	
+	private Date addDays(Date date, int days)
+    {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.DATE, days); //minus number would decrement the days
+        return cal.getTime();
+    }
+	
+	public void setRemainingFreebiesDays(Integer remainingFreebiesDays) {
+		this.remainingFreebiesDays = remainingFreebiesDays;
+	}
+	
+	/*
+	@OneToMany(targetEntity = ItemImage.class, mappedBy = "item", fetch = FetchType.LAZY)
+	@Where(clause = "valid=1")
+	@OrderBy("sortOrder asc")
+	public List<ItemImage> getImages() {
+		return images;
+	}
+
+	public void setImages(List<ItemImage> images) {
+		this.images = images;
+	}
+	 
+	 */
+	/*
+	@Transient
+	public Integer getTotalRecommendations(){
+		
+		Integer totalRecommendationsCount = 0;
+		//totalCount = memberPollDelegate.findCount(company, pollType, remarks, item);
+		totalRecommendationsCount = memberPollDelegate.findCount(getCompany(), PollType.RECOMMEND.getName(), String.valueOf(GurkkaConstants.RECOMMEND), this);
+		if(totalRecommendationsCount == null){
+			return 0;
+		}
+		System.out.println("##"+this.getName()+":::"+totalRecommendationsCount);
+		
+		return totalRecommendationsCount;
+	}
+	
+	public void setTotalRecommendations(Integer totalRecommendations){
+		this.totalRecommendations = totalRecommendations;
+	}
+*/
+	
+	@Override
+	public CategoryItem clone() throws RuntimeException {
+		CategoryItem categoryItem = null;
+		try {
+			categoryItem = (CategoryItem)super.clone();
+		}
+		catch(CloneNotSupportedException cnse) {
+			throw new RuntimeException(cnse);
+		}
+		return categoryItem;
+	}
+	
+	
+	@Transient
+	public String getDescriptionWithoutTags()
+	{
+		return HTMLTagStripper.stripTags(getDescription());
+	}
+	
+	@Transient
+	public String getShortDescriptionWithoutTags()
+	{
+		return HTMLTagStripper.stripTags(getShortDescription());
+	}
+
+	@Basic
+	@Column(name = "meta_keywords", nullable = true, columnDefinition="text")
+	public String getMeta_keywords() {
+		return meta_keywords;
+	}
+
+	public void setMeta_keywords(String meta_keywords) {
+		this.meta_keywords = meta_keywords;
+	}
+	
+	@Basic
+	@Column(name = "meta_title", length = 50, nullable = true, columnDefinition="text")
+	public String getMeta_title() {
+		return meta_title;
+	}
+
+	public void setMeta_title(String meta_title) {
+		this.meta_title = meta_title;
+	}
+	
+	@Basic
+	@Column(name = "meta_description", nullable = true, columnDefinition="text")
+	public String getMeta_description() {
+		return meta_description;
+	}
+
+	public void setMeta_description(String meta_description) {
+		this.meta_description = meta_description;
+	}
+
+	public void setOrderQuantity(Integer orderQuantity) {
+		this.orderQuantity = orderQuantity;
+	}
+
+	@Transient
+	public Integer getOrderQuantity() {
+		return orderQuantity;
+	}
+
+	public void setSchedules(List<Schedule> schedules) {
+		this.schedules = schedules;
+	}
+
+	@OneToMany(targetEntity = Schedule.class, mappedBy="categoryItem", fetch=FetchType.LAZY)
+	@Fetch(FetchMode.SELECT)
+	@NotFound(action=NotFoundAction.IGNORE)	
+	@Where(clause="valid = 1")	
+	public List<Schedule> getSchedules() {
+		return schedules;
+	}
+	
+	@Transient
+	public String getItemSchedule(){
+		List<Schedule> listOfScehdule =  getSchedules();
+		//Syste
+		
+		
+		Map<String,String> schedulesMap = new HashMap<String,String>();
+		
+		String days[] = new String[]{"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"};
+			
+		
+		String fullSched = "";
+		if(listOfScehdule!=null && listOfScehdule.size()>0){
+			String dailySched = "";
+			String allDailySched = "";
+				for(Schedule s:listOfScehdule){
+					dailySched = "";
+					if(s.getDailySchedule()!=null && s.getDailySchedule().indexOf(",")!=-1){
+						int i = 0;
+						String dayArray[] = s.getDailySchedule().split(",");
+						for(String day : dayArray ){
+							if(day!=null && day.length()>0){
+								day = WordUtils.capitalize(day);
+								if(dailySched.length() != 0){
+									if(dayArray.length >1 && i == dayArray.length - 1)
+										dailySched += " and " + day;
+									else
+										dailySched += " ," + day;
+								}else{
+									dailySched = day;
+								}
+							}
+							i++;
+						}
+						//dailySched;
+						allDailySched += dailySched + " " + s.getFormattedTime()+"<br>";
+						//dailySched+=" "+s.getFormattedTime();
+						
+					}
+
+				}
+				
+				if(dailySched.length()>0){
+					dailySched = "Schedule :<BR> "+allDailySched;
+					return dailySched;
+				}
+				
+		}
+		return "";
+	}
+	
+	@OneToMany(targetEntity = CategoryItemLanguage.class, mappedBy = "defaultCategoryItem", fetch = FetchType.LAZY)
+	public List<CategoryItemLanguage> getCategoryItemLanguageList() {
+		return categoryItemLanguageList;
+	}
+	public void setCategoryItemLanguageList(
+			List<CategoryItemLanguage> categoryItemLanguageList) {
+		this.categoryItemLanguageList = categoryItemLanguageList;
+	}
+	@Transient
+	public CategoryItemLanguage getCategoryItemLanguage() {
+		if (getCategoryItemLanguageList() != null && language != null)
+			for (CategoryItemLanguage temp : getCategoryItemLanguageList()) {
+				if (temp.getLanguage().equals(this.language))
+					return temp;
+			}
+		return null;
+	}
+	
+	public void setItemDetailMap(Map<String, String> itemDetailMap) {
+		// TODO Auto-generated method stub
+		this.itemDetailMap = itemDetailMap;
+	}
+	
+    @CollectionOfElements
+    public Map<String, String> getItemDetailMap() {
+    	return itemDetailMap;
+    }
+    
+    @CollectionOfElements
+	@JoinTable(joinColumns = @JoinColumn(name="id"))
+	@Type(type="long")
+	@Column(name="sub_category_items")
+	public List<Long> getSubCategoryItems() {
+		return subCategoryItems;
+	}
+	
+	public void setSubCategoryItems(List<Long> subCategoryItems) {
+		this.subCategoryItems = subCategoryItems;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public String toJSONString() {
+		ArrayList<String> imgs = new ArrayList<String>();
+		for(int x = 0; x < getImages().size(); x++){
+			imgs.add(getImages().get(x).getOriginal().toString());
+		}
+		
+		ArrayList<String> files = new ArrayList<String>();
+		for(int y = 0; y < getFiles().size(); y++){
+			files.add(getFiles().get(y).getFilePath().toString());
+		}
+		JSONObject json = new JSONObject();
+		
+		json.put("id", getId());
+		json.put("name", getName());
+		json.put("images", new JSONArray(imgs));
+		json.put("files", new JSONArray(files));
+		return json.toJSONString();
+	}
+	
+	
+	@Transient
+	public String getPriceFormatted(){
+		return DEFAULT_DECIMAL_FORMAT.format(price);
+	}
+	
+	@Transient
+	public Boolean getIsNew(){
+		return new DateTime(getCreatedOn()).isAfter(new DateTime().minusDays(getCompany().getNotifDuration()));
+	}
+	
+	@Transient
+	public Boolean getIsUpdated(){
+		return new DateTime(getCreatedOn()).isAfter(new DateTime().minusDays(getCompany().getNotifDuration()));
+	}
+	
+}

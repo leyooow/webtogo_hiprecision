@@ -1,0 +1,24 @@
+#for production only
+log4j.rootLogger=INFO, R, stdout
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%p %d{MMM dd yyyy HH:mm:ss} %c - %m%n
+
+log4j.appender.R=org.apache.log4j.DailyRollingFileAppender 
+log4j.appender.R.File=${catalina.home}/logs/webtogo.log
+log4j.appender.R.DatePattern='.'yyyy-MM-dd'.log'
+log4j.appender.R.layout=org.apache.log4j.PatternLayout 
+log4j.appender.R.layout.ConversionPattern=%p %d{MMM dd yyyy HH:mm:ss} %c - %m%n 
+
+log4j.logger.test.com.ivant=DEBUG
+
+log4j.logger.com.ivant.cms=TRACE
+log4j.logger.com.ivant=TRACE
+
+log4j.logger.org.apache=INFO
+log4j.logger.org.hibernate=INFO
+log4j.logger.org.hibernate.tool.hbm2ddl.SchemaExport=DEBUG
+log4j.logger.uk.ltd.getahead.dwr=DEBUG
+log4j.logger.com.mchange=ERROR
+log4j.logger.com.opensymphony=WARN

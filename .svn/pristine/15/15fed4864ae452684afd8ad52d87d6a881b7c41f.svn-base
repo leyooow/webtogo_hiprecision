@@ -1,0 +1,92 @@
+		div.domtab{
+			padding:0;
+			width:98%;
+			font-size:12px;
+			margin:0 auto;
+			background:#345cad
+		}
+		ul.domtabs{
+			float:left;
+			width:100%;
+			margin:1px 0 0 0;
+			list-style:none			
+		}
+		ul.domtabs li{
+			float:left;
+			padding:0 .5em 0 0;
+		}
+		ul.domtabs a:link,
+		ul.domtabs a:visited,
+		ul.domtabs a:active,
+		ul.domtabs a:hover{
+			width:auto;
+			padding:5px 1em;
+			display:block;
+			background:#ced5e1;
+			color:#345cad;
+			height:auto;
+			font-weight:bold;
+			text-decoration:none;
+		}
+		html>body ul.domtabs a:link,
+		html>body ul.domtabs a:visited,
+		html>body ul.domtabs a:active,
+		html>body ul.domtabs a:hover{
+			height:auto;
+			min-height:17px;
+		}
+		ul.domtabs a:hover{
+			background:#fbfbfb;
+		}
+		div.domtab div{
+			clear:both;
+			width:auto;
+			background:#fbfbfb;
+			color:#282828;
+			padding:1em 3em;
+			border-bottom:1px solid #345cad;
+			border-right:1px solid #345cad;
+			border-left:1px solid #345cad
+		}
+		ul.domtabs li.active a:link,
+		ul.domtabs li.active a:visited,
+		ul.domtabs li.active a:active,
+		ul.domtabs li.active a:hover{
+			background:#fbfbfb;
+			color:#345cad;
+			font-weight:bold
+		}
+		#domtabprintview{
+			float:right;
+			padding-right:1em;
+			text-align:right;
+		}
+		#domtabprintview a:link,
+		#domtabprintview a:visited,
+		#domtabprintview a:active,
+		#domtabprintview a:hover{
+			color:#fff;
+		}
+		
+	
+		div.domtab div a:link,
+		div.domtab div a:visited,
+		div.domtab div a:active
+		{
+			color:#fff;
+			display:block;
+			padding:1em .5em;
+			font-weight:bold;
+			font-size:1.3em;
+		}
+		div.domtab div h2 a,
+		div.domtab div h2 a:hover,
+		div.domtab div h2 a:active
+		{
+			color:#282828;
+			display:inline;
+			padding:0;
+			font-weight:normal;
+			font-size:1em;
+		}
+		

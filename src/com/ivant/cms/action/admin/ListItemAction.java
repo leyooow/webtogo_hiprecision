@@ -1,0 +1,1513 @@
+package com.ivant.cms.action.admin;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.struts2.interceptor.ServletRequestAware;
+import org.apache.struts2.util.ServletContextAware;
+import org.hibernate.criterion.Order;
+
+import com.ivant.cms.delegate.CategoryDelegate;
+import com.ivant.cms.delegate.CategoryItemDelegate;
+import com.ivant.cms.delegate.CategoryItemOtherFieldDelegate;
+import com.ivant.cms.delegate.CategoryItemPriceDelegate;
+import com.ivant.cms.delegate.CategoryItemPriceNameDelegate;
+import com.ivant.cms.delegate.GroupDelegate;
+import com.ivant.cms.delegate.ItemAttributeDelegate;
+import com.ivant.cms.delegate.LastUpdatedDelegate;
+import com.ivant.cms.delegate.OtherFieldDelegate;
+import com.ivant.cms.entity.Category;
+import com.ivant.cms.entity.CategoryItem;
+import com.ivant.cms.entity.CategoryItemOtherField;
+import com.ivant.cms.entity.CategoryItemPrice;
+import com.ivant.cms.entity.CategoryItemPriceName;
+import com.ivant.cms.entity.Company;
+import com.ivant.cms.entity.CompanySettings;
+import com.ivant.cms.entity.Group;
+import com.ivant.cms.entity.OtherField;
+import com.ivant.cms.entity.User;
+import com.ivant.cms.interfaces.CategoryAware;
+import com.ivant.cms.interfaces.CompanyAware;
+import com.ivant.cms.interfaces.GroupAware;
+import com.ivant.cms.interfaces.PagingAware;
+import com.ivant.cms.interfaces.UserAware;
+import com.ivant.constants.ApplicationConstants;
+import com.ivant.constants.CompanyConstants;
+import com.opensymphony.xwork2.Action;
+import com.opensymphony.xwork2.ActionSupport;
+import com.opensymphony.xwork2.Preparable;
+
+public class ListItemAction
+		extends ActionSupport
+		implements Preparable, ServletRequestAware, UserAware, ServletContextAware, PagingAware, GroupAware, CompanyAware, CategoryAware
+{
+
+	private static final long serialVersionUID = -6076537228718308644L;
+	private final Logger logger = Logger.getLogger(getClass());
+	private final CategoryItemDelegate categoryItemDelegate = CategoryItemDelegate.getInstance();
+	private final CategoryDelegate categoryDelegate = CategoryDelegate.getInstance();
+	private final GroupDelegate groupDelegate = GroupDelegate.getInstance();
+	private static final LastUpdatedDelegate lastUpdatedDelegate = LastUpdatedDelegate.getInstance();
+	private final ItemAttributeDelegate itemAttributeDelegate = ItemAttributeDelegate.getInstance();
+	private static final CategoryItemOtherFieldDelegate categoryItemOtherFieldDelegate = CategoryItemOtherFieldDelegate.getInstance();
+	private static final OtherFieldDelegate otherFieldDelegate = OtherFieldDelegate.getInstance();
+	private static final CategoryItemPriceDelegate categoryItemPriceDelegate = CategoryItemPriceDelegate.getInstance();
+	private static final CategoryItemPriceNameDelegate categoryItemPriceNameDelegate = CategoryItemPriceNameDelegate.getInstance();
+
+	private CompanySettings companySettings;
+	
+	private User user;
+	private int page;
+	private int totalItems;
+	private int itemsPerPage;
+
+	private FileInputStream fInStream;
+	private FileInputStream inputStream;
+	
+	private long contentLength;
+	private ServletContext servletContext;
+	private ServletRequest request;
+
+	private String filePath;
+	private String fileName;
+
+	private Category category;
+	private Group group;
+	private List<CategoryItem> items;
+
+	private String keyword;
+
+	private List<Category> categoriesList;
+	private List<Category> sortedCategoriesList;
+	private String catId;
+
+	private List<CategoryItem> searchList;
+	private Company company;
+
+	private CategoryItem item;
+
+	private final int maxItem = ApplicationConstants.MAX_BATCH_UPDATE_ITEMS;
+	private List<Category> categories;
+
+	public int getMaxItem()
+	{
+		return maxItem;
+	}
+
+	public List<CategoryItem> getSearchList()
+	{
+		return searchList;
+	}
+
+	public void setSearchList(List<CategoryItem> searchList)
+	{
+		this.searchList = searchList;
+	}
+
+	public String getCatId()
+	{
+		return catId;
+	}
+
+	public void setCatId(String catId)
+	{
+		this.catId = catId;
+	}
+
+	public List<Category> getCategoriesList()
+	{
+		return categoriesList;
+	}
+
+	public void setCategoriesList(List<Category> categoriesList)
+	{
+		this.categoriesList = categoriesList;
+	}
+
+	public String getKeyword()
+	{
+		return keyword;
+	}
+
+	public void setKeyword(String keyword)
+	{
+		this.keyword = keyword;
+	}
+
+	public List<Category> getSortedCategoriesList()
+	{
+		return this.sortedCategoriesList;
+	}
+
+	@Override
+	public String execute() throws Exception
+	{
+
+		if(!commonParamsValid())
+		{
+			return Action.ERROR;
+
+		}
+		
+		companySettings = company.getCompanySettings();
+
+		
+		//loadBranches();
+		//loadMachines();
+		
+		// logger.debug("hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+		// items = categoryItemDelegate.findAllWithPaging(user.getCompany(),
+		// category, itemsPerPage, page, true, Order.asc("name")).getList();
+
+		final Order[] orders1 = { Order.asc("parent"), Order.asc("sortOrder"), Order.asc("name") };
+		final Order[] orders2 = { Order.asc("parent"), Order.asc("name") };
+		final Order[] orders3 = { Order.asc("parent"), Order.asc("createdOn"), Order.asc("name") };
+		final Order[] orders4 = { Order.asc("name") };
+		final Order[] orders5 = { Order.desc("featured") };
+		categoriesList = categoryDelegate.findAll(user.getCompany(), group).getList();
+		Order[] orders = { Order.asc("parent"), Order.asc("sortOrder"), Order.asc("name") };
+		if(group != null)
+		{
+			if(group.getSortType() != null)
+			{
+				if(group.getSortType().equals("manualSort"))
+				{
+					orders = orders1;
+				}
+				else if(group.getSortType().equals("alphabeticalSort"))
+				{
+					orders = orders2;
+					if(company.getId() == CompanyConstants.GURKKA || company.getId() == CompanyConstants.GURKKA_TEST)
+					{
+						orders = orders4;
+					}
+				}
+				else if(group.getSortType().equals("dateCreatedSort"))
+				{
+					orders = orders3;
+				}
+			}
+			
+
+		}
+		
+		boolean hasUserRights = user != null ? user.getCompany().getCompanySettings().getHasUserRights() : false;
+
+		
+		if(hasUserRights){
+			for(Category forbiddenCategory: user.getForbiddenCategories()){
+				categoriesList.remove(forbiddenCategory);
+			}
+		}
+		
+		sortedCategoriesList = sortList(categoriesList);// sort categoriesList
+		
+		List<Category> forbiddenCategories = user != null ? user.getForbiddenCategories() : new ArrayList<Category>();
+
+		catId = request.getParameter("catId");
+		if(catId != null && catId.trim().length() != 0)
+		{
+			final Category tempCategory = categoryDelegate.find(new Long(catId));
+			// System.out.println("" + tempCategory.getName() + " " + tempCategory.getId());
+			
+			items = categoryItemDelegate.findAllWithPaging(user.getCompany(), group, tempCategory, itemsPerPage, page, true, hasUserRights, forbiddenCategories, orders).getList();
+			totalItems = categoryItemDelegate.countAll(company, group, tempCategory, true, hasUserRights, forbiddenCategories);
+
+		}
+		else
+		{
+
+			items = categoryItemDelegate.findAllWithPaging(user.getCompany(), group, category, itemsPerPage, page, true, hasUserRights, forbiddenCategories, orders ).getList();
+
+
+		}
+		if(items != null && !items.isEmpty() && (company.getId() == CompanyConstants.GURKKA || company.getId() == CompanyConstants.GURKKA_TEST))
+		{
+			prepareOtherFields(items, group);
+		}		
+		return Action.SUCCESS;
+	}
+	
+	private void loadMachines() {
+		
+		List<CategoryItem> machineList = null;
+		if(Long.parseLong(request.getParameter("group_id")) == 168){
+			System.out.println("Analytes Group SELECTED!");
+			
+			Group machines = null;
+			machines = groupDelegate.find(170L);
+			machineList = categoryItemDelegate.findAllByGroup(company, machines).getList();
+		}
+		request.setAttribute("machineList", machineList);
+	}
+	
+	private void loadBranches() {
+		
+		List<CategoryItem> branchList = null;
+		if(Long.parseLong(request.getParameter("group_id")) == 168){
+			System.out.println("Analytes Group SELECTED!");
+			
+			Group branches = null;
+			branches = groupDelegate.find(159L);
+			branchList = categoryItemDelegate.findAllByGroup(company, branches).getList();
+		}
+		request.setAttribute("branchList", branchList);
+	}
+
+
+	/*
+	 * returns an alphabetically-sorted list of the categoriesList uses the
+	 * Bubble Sort Implementation
+	 */
+	public List<Category> sortList(List<Category> toBeSorted)
+	{
+		Category temp;
+		for(int i = 1; i < toBeSorted.size(); i++)
+		{
+			for(int j = 0; j < toBeSorted.size() - i; j++)
+			{
+				if(0 < toBeSorted.get(j).getName().compareTo(toBeSorted.get(j + 1).getName()))
+				{
+					temp = toBeSorted.get(j);
+					toBeSorted.set(j, toBeSorted.get(j + 1));
+					toBeSorted.set(j + 1, temp);
+				}
+			}
+		}
+		return toBeSorted;
+	}
+
+	@Override
+	public void prepare() throws Exception
+	{
+		try
+		{
+			final long categoryId = Long.parseLong(request.getParameter("category_id"));
+			category = categoryDelegate.find(categoryId);
+			final long groupId = Long.parseLong(request.getParameter("group1_id"));
+			group = groupDelegate.find(groupId);
+			
+			
+		}
+		catch(final Exception e)
+		{
+
+		}
+
+		// String evt = request.getParameter("evt");
+		// if(evt != null) {
+		// if(evt.equals("save")) {
+		// addActionMessage("Item was successfully saved.");
+		// }
+		// else if(evt.equals("delete")) {
+		// addActionMessage("Item was successfully deleted.");
+		// }
+		// else if(evt.equals("maxItems")) {
+		// addActionError("Items was not added because maximum number of items that was allocated has been reached.");
+		// }
+		// else if(evt.equals("itemExist")) {
+		// addActionError("Items was not added because it already exist for the specified category.");
+		// }
+		// }
+		
+		if(group != null){
+			categories = group.getCategories();
+			if(user != null && user.getCompany().getCompanySettings().getHasUserRights()){
+				for(Category forbiddenCategory: user.getForbiddenCategories()){
+					categories.remove(forbiddenCategory);
+				}	
+			}
+		}
+	}
+
+	public String sort()
+	{
+		if(user.getCompany() == null)
+		{
+			return Action.ERROR;
+		}
+		if(item != null)
+		{
+			if(!item.getCompany().equals(user.getCompany()))
+			{
+				return Action.ERROR;
+			}
+		}
+
+		final long parentCategoryId = Long.parseLong(request.getParameter("category_id"));
+		category = categoryDelegate.find(parentCategoryId);
+		final Order[] orders = { Order.asc("sortOrder"), Order.asc("name") };
+
+		items = categoryItemDelegate.getAllCatItemsNoPaging(category.getCompany(), category, orders).getList();
+
+		return Action.SUCCESS;
+	}
+
+	public String update()
+	{
+		String[] itemId, categId, sortOrderItem, sortOrderCateg;
+
+		itemId = request.getParameterValues("itemId");
+		categId = request.getParameterValues("categId");
+
+		sortOrderCateg = request.getParameterValues("sortOrderCateg");
+		sortOrderItem = request.getParameterValues("sortOrderItem");
+
+		if(itemId == null && categId == null)
+		{
+			group = groupDelegate.find(Long.parseLong(request.getParameter("group_id")));
+			return Action.NONE;
+		}
+		if(itemId != null)
+		{
+			for(int i = 0; i < itemId.length; i++)
+			{
+
+				item = categoryItemDelegate.find(Long.parseLong(itemId[i]));
+
+				if(sortOrderItem.equals(""))
+				{
+					item.setSortOrder(0);
+				}
+				else
+				{
+					item.setSortOrder(Integer.parseInt(sortOrderItem[i]));
+				}
+				categoryItemDelegate.update(item);
+			}
+
+			group = item.getParentGroup();
+			lastUpdatedDelegate.saveLastUpdated(item.getCompany());
+		}
+
+		if(categId != null)
+		{
+			for(int i = 0; i < categId.length; i++)
+			{
+				category = categoryDelegate.find(Long.parseLong(categId[i]));
+
+				if(sortOrderCateg[i].equals(""))
+				{
+					category.setSortOrder(0);
+				}
+				else
+				{
+					category.setSortOrder(Integer.parseInt(sortOrderCateg[i]));
+				}
+
+				categoryDelegate.update(category);
+			}
+
+			group = category.getParentGroup();
+			lastUpdatedDelegate.saveLastUpdated(category.getCompany());
+		}
+
+		return Action.SUCCESS;
+	}
+
+	private void prepareOtherFields(List<CategoryItem> items, Group group)
+	
+	{
+		final List<Group> groupList = groupDelegate.findAll(company).getList();
+		final Map<String, Group> groupMap = new HashMap<String, Group>();
+		final Map<Long, Group> groupIdMap = new HashMap<Long, Group>();
+		for(final Group group1 : groupList)
+		{
+			groupMap.put(group.getName(), group1);
+			groupIdMap.put(group.getId(), group1);
+		}
+		request.setAttribute("groupList", groupList);
+		request.setAttribute("groupMap", groupMap);
+		request.setAttribute("groupIdMap", groupIdMap);
+		final HashMap<Long, String> inventoryQty = new HashMap<Long, String>();
+		final HashMap<Long, String> inventoryQtyNoted = new HashMap<Long, String>();
+		final HashMap<Long, String> dealerPrice = new HashMap<Long, String>();
+
+		for(final CategoryItem item : items)
+		{}
+		request.setAttribute("inventoryQty", inventoryQty);
+		request.setAttribute("inventoryQtyNoted", inventoryQtyNoted);
+		request.setAttribute("dealerPrice", dealerPrice);
+
+	}
+	
+	public String downloadAllItemsExcel() throws Exception
+	{
+		List<CategoryItem> itemsForDownload = null;
+
+		group = groupDelegate.find(Long.valueOf(request.getParameter("group_id")));
+		itemsForDownload = categoryItemDelegate.findAllByGroupEnabledValue(company, group, null).getList();
+
+		final String basePath = servletContext.getRealPath("");
+		final String locationPath = basePath + File.separatorChar + "WEB-INF" + File.separatorChar;
+		new File(locationPath).mkdir();
+		fileName = "Forms_Submission_Report_All.xls";
+		filePath = locationPath + "reports" + File.separatorChar + fileName;
+		// filePath = locationPath + fileName;
+		logger.debug("filepath (member) : " + filePath);
+		final File file = new File(filePath);
+		final FileOutputStream out = new FileOutputStream(file);
+		final String includeHtml = request.getParameter("includeHtml");
+		group.getOtherFields();
+
+		final HSSFWorkbook wb = new HSSFWorkbook();
+		final HSSFSheet s = wb.createSheet();
+		int cCount = 1;
+		HSSFRow r = null;
+		HSSFCell c = null;
+		wb.createDataFormat();
+
+		wb.setSheetName(0, "FORM SUBMISSION REPORT - ");
+
+		r = s.createRow(1);
+		r = s.createRow(2);
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Category");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Brand");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Item Name");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("SKU");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Price");
+		
+		
+		if(company.getName().equalsIgnoreCase("gurkkatest")){
+			c = r.createCell((short) cCount++);
+			c.setCellValue("Dealer's Price");
+		}
+		
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Weight");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Available Quantity");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Description");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Short Description");
+
+		s.setColumnWidth((short) 1, (short) 9000);
+		s.setColumnWidth((short) 2, (short) 9000);
+		s.setColumnWidth((short) 3, (short) 9000);
+		s.setColumnWidth((short) 4, (short) 9000);
+		s.setColumnWidth((short) 5, (short) 9000);
+		s.setColumnWidth((short) 6, (short) 9000);
+		s.setColumnWidth((short) 7, (short) 9000);
+		s.setColumnWidth((short) 8, (short) 9000);
+		s.setColumnWidth((short) 9, (short) 9000);
+		s.setColumnWidth((short) 10, (short) 9000);
+
+		if(Boolean.TRUE.equals(company.getCompanySettings().getHasOtherFields()))
+		{
+			short otherFieldsHeaderCount = 10;
+			for(final OtherField of : group.getOtherFields())
+			{
+				s.setColumnWidth(otherFieldsHeaderCount, (short) 9000);
+				c = r.createCell(otherFieldsHeaderCount);
+				c.setCellValue(of.getName());
+				otherFieldsHeaderCount++;
+			}
+		}
+
+		final List<OtherField> otherFields = group.getOtherFields();
+
+		short rowNum = 3;
+
+		for(final CategoryItem e : itemsForDownload)
+		{
+			cCount = 1;
+			r = s.createRow(++rowNum);
+			c = r.createCell((short) cCount++);
+
+			if(e.getParent() != null)
+			{
+				c.setCellValue(e.getParent().getName());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getBrand() != null)
+			{
+				c.setCellValue(e.getBrand().getName().toString());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getName() != null)
+			{
+				c.setCellValue(e.getName());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getSku() != null)
+			{
+				c.setCellValue(e.getSku());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			c.setCellValue(e.getPrice());
+			
+			if(company.getName().equalsIgnoreCase("gurkkatest")) {
+				c = r.createCell((short) cCount++);
+					c.setCellValue("0");
+				
+			}
+			
+			c = r.createCell((short) cCount++);
+
+			if(e.getWeight() != null)
+			{
+				c.setCellValue(e.getWeight());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getAvailableQuantity() != null)
+			{
+				c.setCellValue(e.getAvailableQuantity());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getDescriptionWithoutTags() != null)
+			{
+				c.setCellValue(e.getDescriptionWithoutTags());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(includeHtml == null)
+			{
+				if(e.getShortDescriptionWithoutTags() != null && e.getShortDescriptionWithoutTags() != "")
+				{
+					c.setCellValue("***");
+				}
+			}
+			else
+			{
+
+				c.setCellValue((e.getShortDescription() != null)
+					? new String(e.getShortDescription().getBytes("UTF-8"), "UTF-8")
+					: "");
+			}
+
+			if(Boolean.TRUE.equals(company.getCompanySettings().getHasOtherFields()))
+			{
+				if(otherFields != null && otherFields.size() > 0)
+				{
+					short itemOtherFieldsCounter = 10;
+					for(int i = 0; i < otherFields.size(); i++)
+					{
+						c = r.createCell(itemOtherFieldsCounter);
+						final CategoryItemOtherField otherField = categoryItemOtherFieldDelegate.findByCategoryItemOtherField(company, e, otherFields.get(i));
+
+						c.setCellValue((otherField != null)
+							? otherField.getContent()
+							: "");
+						itemOtherFieldsCounter++;
+					}
+				}
+
+			}
+
+		}
+
+		wb.write(out);
+		out.close();
+
+		logger.debug("start download...");
+		download(filePath);
+		
+		return SUCCESS;
+	}
+	
+	public String downloadEnabledItemsExcel() throws Exception
+	{
+		List<CategoryItem> itemsForDownload = null;
+
+		group = groupDelegate.find(Long.valueOf(request.getParameter("group_id")));
+		itemsForDownload = categoryItemDelegate.findAllByGroupEnabledValue(company, group, Boolean.FALSE).getList();
+
+		final String basePath = servletContext.getRealPath("");
+		final String locationPath = basePath + File.separatorChar + "WEB-INF" + File.separatorChar;
+		new File(locationPath).mkdir();
+		fileName = "Forms_Submission_Report_Enabled.xls";
+		filePath = locationPath + "reports" + File.separatorChar + fileName;
+		// filePath = locationPath + fileName;
+		logger.debug("filepath (member) : " + filePath);
+		final File file = new File(filePath);
+		final FileOutputStream out = new FileOutputStream(file);
+		final String includeHtml = request.getParameter("includeHtml");
+		group.getOtherFields();
+
+		final HSSFWorkbook wb = new HSSFWorkbook();
+		final HSSFSheet s = wb.createSheet();
+		int cCount = 1;
+		HSSFRow r = null;
+		HSSFCell c = null;
+		wb.createDataFormat();
+
+		wb.setSheetName(0, "FORM SUBMISSION REPORT - ");
+
+		r = s.createRow(1);
+		r = s.createRow(2);
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Category");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Brand");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Item Name");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("SKU");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Price");
+		
+		
+		if(company.getName().equalsIgnoreCase("gurkkatest")){
+			c = r.createCell((short) cCount++);
+			c.setCellValue("Dealer's Price");
+		}
+		
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Weight");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Available Quantity");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Description");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Short Description");
+
+		s.setColumnWidth((short) 1, (short) 9000);
+		s.setColumnWidth((short) 2, (short) 9000);
+		s.setColumnWidth((short) 3, (short) 9000);
+		s.setColumnWidth((short) 4, (short) 9000);
+		s.setColumnWidth((short) 5, (short) 9000);
+		s.setColumnWidth((short) 6, (short) 9000);
+		s.setColumnWidth((short) 7, (short) 9000);
+		s.setColumnWidth((short) 8, (short) 9000);
+		s.setColumnWidth((short) 9, (short) 9000);
+		s.setColumnWidth((short) 10, (short) 9000);
+
+		if(Boolean.TRUE.equals(company.getCompanySettings().getHasOtherFields()))
+		{
+			short otherFieldsHeaderCount = 10;
+			for(final OtherField of : group.getOtherFields())
+			{
+				s.setColumnWidth(otherFieldsHeaderCount, (short) 9000);
+				c = r.createCell(otherFieldsHeaderCount);
+				c.setCellValue(of.getName());
+				otherFieldsHeaderCount++;
+			}
+		}
+
+		final List<OtherField> otherFields = group.getOtherFields();
+
+		short rowNum = 3;
+
+		for(final CategoryItem e : itemsForDownload)
+		{
+			cCount = 1;
+			r = s.createRow(++rowNum);
+			c = r.createCell((short) cCount++);
+
+			if(e.getParent() != null)
+			{
+				c.setCellValue(e.getParent().getName());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getBrand() != null)
+			{
+				c.setCellValue(e.getBrand().getName().toString());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getName() != null)
+			{
+				c.setCellValue(e.getName());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getSku() != null)
+			{
+				c.setCellValue(e.getSku());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			c.setCellValue(e.getPrice());
+			
+			if(company.getName().equalsIgnoreCase("gurkkatest")) {
+				c = r.createCell((short) cCount++);
+					c.setCellValue("0");
+				
+			}
+			
+			c = r.createCell((short) cCount++);
+
+			if(e.getWeight() != null)
+			{
+				c.setCellValue(e.getWeight());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getAvailableQuantity() != null)
+			{
+				c.setCellValue(e.getAvailableQuantity());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getDescriptionWithoutTags() != null)
+			{
+				c.setCellValue(e.getDescriptionWithoutTags());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(includeHtml == null)
+			{
+				if(e.getShortDescriptionWithoutTags() != null && e.getShortDescriptionWithoutTags() != "")
+				{
+					c.setCellValue("***");
+				}
+			}
+			else
+			{
+
+				c.setCellValue((e.getShortDescription() != null)
+					? new String(e.getShortDescription().getBytes("UTF-8"), "UTF-8")
+					: "");
+			}
+
+			if(Boolean.TRUE.equals(company.getCompanySettings().getHasOtherFields()))
+			{
+				if(otherFields != null && otherFields.size() > 0)
+				{
+					short itemOtherFieldsCounter = 10;
+					for(int i = 0; i < otherFields.size(); i++)
+					{
+						c = r.createCell(itemOtherFieldsCounter);
+						final CategoryItemOtherField otherField = categoryItemOtherFieldDelegate.findByCategoryItemOtherField(company, e, otherFields.get(i));
+
+						c.setCellValue((otherField != null)
+							? otherField.getContent()
+							: "");
+						itemOtherFieldsCounter++;
+					}
+				}
+
+			}
+
+		}
+
+		wb.write(out);
+		out.close();
+
+		logger.debug("start download...");
+		download(filePath);
+		
+		return SUCCESS;
+	}
+	
+	public String downloadDisabledItemsExcel() throws Exception
+	{
+		List<CategoryItem> itemsForDownload = null;
+
+		group = groupDelegate.find(Long.valueOf(request.getParameter("group_id")));
+		itemsForDownload = categoryItemDelegate.findAllByGroupEnabledValue(company, group, Boolean.TRUE).getList();
+
+		final String basePath = servletContext.getRealPath("");
+		final String locationPath = basePath + File.separatorChar + "WEB-INF" + File.separatorChar;
+		new File(locationPath).mkdir();
+		fileName = "Forms_Submission_Report_Disabled.xls";
+		filePath = locationPath + "reports" + File.separatorChar + fileName;
+		// filePath = locationPath + fileName;
+		logger.debug("filepath (member) : " + filePath);
+		final File file = new File(filePath);
+		final FileOutputStream out = new FileOutputStream(file);
+		final String includeHtml = request.getParameter("includeHtml");
+		group.getOtherFields();
+
+		final HSSFWorkbook wb = new HSSFWorkbook();
+		final HSSFSheet s = wb.createSheet();
+		int cCount = 1;
+		HSSFRow r = null;
+		HSSFCell c = null;
+		wb.createDataFormat();
+
+		wb.setSheetName(0, "FORM SUBMISSION REPORT - ");
+
+		r = s.createRow(1);
+		r = s.createRow(2);
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Category");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Brand");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Item Name");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("SKU");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Price");
+		
+		
+		if(company.getName().equalsIgnoreCase("gurkkatest")){
+			c = r.createCell((short) cCount++);
+			c.setCellValue("Dealer's Price");
+		}
+		
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Weight");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Available Quantity");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Description");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Short Description");
+
+		s.setColumnWidth((short) 1, (short) 9000);
+		s.setColumnWidth((short) 2, (short) 9000);
+		s.setColumnWidth((short) 3, (short) 9000);
+		s.setColumnWidth((short) 4, (short) 9000);
+		s.setColumnWidth((short) 5, (short) 9000);
+		s.setColumnWidth((short) 6, (short) 9000);
+		s.setColumnWidth((short) 7, (short) 9000);
+		s.setColumnWidth((short) 8, (short) 9000);
+		s.setColumnWidth((short) 9, (short) 9000);
+		s.setColumnWidth((short) 10, (short) 9000);
+
+		if(Boolean.TRUE.equals(company.getCompanySettings().getHasOtherFields()))
+		{
+			short otherFieldsHeaderCount = 10;
+			for(final OtherField of : group.getOtherFields())
+			{
+				s.setColumnWidth(otherFieldsHeaderCount, (short) 9000);
+				c = r.createCell(otherFieldsHeaderCount);
+				c.setCellValue(of.getName());
+				otherFieldsHeaderCount++;
+			}
+		}
+
+		final List<OtherField> otherFields = group.getOtherFields();
+
+		short rowNum = 3;
+
+		for(final CategoryItem e : itemsForDownload)
+		{
+			cCount = 1;
+			r = s.createRow(++rowNum);
+			c = r.createCell((short) cCount++);
+
+			if(e.getParent() != null)
+			{
+				c.setCellValue(e.getParent().getName());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getBrand() != null)
+			{
+				c.setCellValue(e.getBrand().getName().toString());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getName() != null)
+			{
+				c.setCellValue(e.getName());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getSku() != null)
+			{
+				c.setCellValue(e.getSku());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			c.setCellValue(e.getPrice());
+			
+			if(company.getName().equalsIgnoreCase("gurkkatest")) {
+				c = r.createCell((short) cCount++);
+					c.setCellValue("0");
+				
+			}
+			
+			c = r.createCell((short) cCount++);
+
+			if(e.getWeight() != null)
+			{
+				c.setCellValue(e.getWeight());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getAvailableQuantity() != null)
+			{
+				c.setCellValue(e.getAvailableQuantity());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getDescriptionWithoutTags() != null)
+			{
+				c.setCellValue(e.getDescriptionWithoutTags());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(includeHtml == null)
+			{
+				if(e.getShortDescriptionWithoutTags() != null && e.getShortDescriptionWithoutTags() != "")
+				{
+					c.setCellValue("***");
+				}
+			}
+			else
+			{
+
+				c.setCellValue((e.getShortDescription() != null)
+					? new String(e.getShortDescription().getBytes("UTF-8"), "UTF-8")
+					: "");
+			}
+
+			if(Boolean.TRUE.equals(company.getCompanySettings().getHasOtherFields()))
+			{
+				if(otherFields != null && otherFields.size() > 0)
+				{
+					short itemOtherFieldsCounter = 10;
+					for(int i = 0; i < otherFields.size(); i++)
+					{
+						c = r.createCell(itemOtherFieldsCounter);
+						final CategoryItemOtherField otherField = categoryItemOtherFieldDelegate.findByCategoryItemOtherField(company, e, otherFields.get(i));
+
+						c.setCellValue((otherField != null)
+							? otherField.getContent()
+							: "");
+						itemOtherFieldsCounter++;
+					}
+				}
+
+			}
+
+		}
+
+		wb.write(out);
+		out.close();
+
+		logger.debug("start download...");
+		download(filePath);
+		
+		return SUCCESS;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	public String downloadItemsExcel() throws Exception
+	{
+		List<CategoryItem> itemsForDownload = null;
+
+		group = groupDelegate.find(Long.valueOf(request.getParameter("group_id")));
+		itemsForDownload = categoryItemDelegate.findAllByGroup(company, group).getList();
+
+		final String basePath = servletContext.getRealPath("");
+		final String locationPath = basePath + File.separatorChar + "WEB-INF" + File.separatorChar;
+		new File(locationPath).mkdir();
+		fileName = "Forms_Submission_Report.xls";
+		filePath = locationPath + "reports" + File.separatorChar + fileName;
+		// filePath = locationPath + fileName;
+		logger.debug("filepath (member) : " + filePath);
+		final File file = new File(filePath);
+		final FileOutputStream out = new FileOutputStream(file);
+		final String includeHtml = request.getParameter("includeHtml");
+		group.getOtherFields();
+
+		final HSSFWorkbook wb = new HSSFWorkbook();
+		final HSSFSheet s = wb.createSheet();
+		int cCount = 1;
+		HSSFRow r = null;
+		HSSFCell c = null;
+		wb.createDataFormat();
+
+		wb.setSheetName(0, "FORM SUBMISSION REPORT - ");
+
+		r = s.createRow(1);
+		r = s.createRow(2);
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Category");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Brand");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Item Name");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("SKU");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Price");
+		
+		
+		if(company.getName().equalsIgnoreCase("gurkkatest")){
+			c = r.createCell((short) cCount++);
+			c.setCellValue("Dealer's Price");
+		}
+		
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Weight");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Available Quantity");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Description");
+		c = r.createCell((short) cCount++);
+		c.setCellValue("Short Description");
+
+		s.setColumnWidth((short) 1, (short) 9000);
+		s.setColumnWidth((short) 2, (short) 9000);
+		s.setColumnWidth((short) 3, (short) 9000);
+		s.setColumnWidth((short) 4, (short) 9000);
+		s.setColumnWidth((short) 5, (short) 9000);
+		s.setColumnWidth((short) 6, (short) 9000);
+		s.setColumnWidth((short) 7, (short) 9000);
+		s.setColumnWidth((short) 8, (short) 9000);
+		s.setColumnWidth((short) 9, (short) 9000);
+		s.setColumnWidth((short) 10, (short) 9000);
+
+		if(Boolean.TRUE.equals(company.getCompanySettings().getHasOtherFields()))
+		{
+			short otherFieldsHeaderCount = 10;
+			for(final OtherField of : group.getOtherFields())
+			{
+				s.setColumnWidth(otherFieldsHeaderCount, (short) 9000);
+				c = r.createCell(otherFieldsHeaderCount);
+				c.setCellValue(of.getName());
+				otherFieldsHeaderCount++;
+			}
+		}
+
+		final List<OtherField> otherFields = group.getOtherFields();
+
+		short rowNum = 3;
+
+		for(final CategoryItem e : itemsForDownload)
+		{
+			cCount = 1;
+			r = s.createRow(++rowNum);
+			c = r.createCell((short) cCount++);
+
+			if(e.getParent() != null)
+			{
+				c.setCellValue(e.getParent().getName());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getBrand() != null)
+			{
+				c.setCellValue(e.getBrand().getName().toString());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getName() != null)
+			{
+				c.setCellValue(e.getName());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getSku() != null)
+			{
+				c.setCellValue(e.getSku());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			c.setCellValue(e.getPrice());
+			
+			if(company.getName().equalsIgnoreCase("gurkkatest")) {
+				c = r.createCell((short) cCount++);
+					c.setCellValue("0");
+				
+			}
+			
+			c = r.createCell((short) cCount++);
+
+			if(e.getWeight() != null)
+			{
+				c.setCellValue(e.getWeight());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getAvailableQuantity() != null)
+			{
+				c.setCellValue(e.getAvailableQuantity());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(e.getDescriptionWithoutTags() != null)
+			{
+				c.setCellValue(e.getDescriptionWithoutTags());
+			}
+
+			c = r.createCell((short) cCount++);
+
+			if(includeHtml == null)
+			{
+				if(e.getShortDescriptionWithoutTags() != null && e.getShortDescriptionWithoutTags() != "")
+				{
+					c.setCellValue("***");
+				}
+			}
+			else
+			{
+
+				c.setCellValue((e.getShortDescription() != null)
+					? new String(e.getShortDescription().getBytes("UTF-8"), "UTF-8")
+					: "");
+			}
+
+			if(Boolean.TRUE.equals(company.getCompanySettings().getHasOtherFields()))
+			{
+				if(otherFields != null && otherFields.size() > 0)
+				{
+					short itemOtherFieldsCounter = 10;
+					for(int i = 0; i < otherFields.size(); i++)
+					{
+						c = r.createCell(itemOtherFieldsCounter);
+						final CategoryItemOtherField otherField = categoryItemOtherFieldDelegate.findByCategoryItemOtherField(company, e, otherFields.get(i));
+
+						c.setCellValue((otherField != null)
+							? otherField.getContent()
+							: "");
+						itemOtherFieldsCounter++;
+					}
+				}
+
+			}
+
+		}
+
+		wb.write(out);
+		out.close();
+
+		logger.debug("start download...");
+		download(filePath);
+		
+		return SUCCESS;
+	}
+
+	public void download(String filePath) throws Exception
+	{
+
+		final File file = new File(filePath);
+		if(!file.exists())
+		{
+			logger.fatal("Unabled to locate file: " + filePath);
+		}
+
+		fInStream = new FileInputStream(file);
+		inputStream = new FileInputStream(file);
+		contentLength = file.length();
+	}
+
+	public boolean commonParamsValid()
+	{
+		if(user.getCompany() == null)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public void setServletRequest(HttpServletRequest request)
+	{
+		this.request = request;
+	}
+
+	@Override
+	public void setUser(User user)
+	{
+		this.user = user;
+	}
+
+	@Override
+	public int getPage()
+	{
+		return page;
+	}
+
+	@Override
+	public int getTotalItems()
+	{
+		return totalItems;
+	}
+
+	@Override
+	public void setPage(int page)
+	{
+		this.page = page;
+	}
+
+	@Override
+	public void setTotalItems()
+	{
+		boolean hasUserRights = user.getCompany().getCompanySettings().getHasUserRights();
+		if(catId != null && catId.trim().length() != 0)
+		{
+			System.out.println("" + categoryDelegate.find(new Long(catId)).getName() + " " + categoryDelegate.find(new Long(catId)).getId());
+//			this.totalItems = categoryItemDelegate.findAllWithPaging(user.getCompany(), group, categoryDelegate.find(new Long(catId)), -1, -1, true, Order.asc("name")).getList().size();
+			this.totalItems = categoryItemDelegate.findAllWithPaging(user.getCompany(), group, categoryDelegate.find(new Long(catId)), -1, -1, true, hasUserRights, user.getForbiddenCategories(), Order.asc("name")).getList().size();
+		}
+		else
+		{
+			this.totalItems = categoryItemDelegate.findAllWithPaging(user.getCompany(), group, category, user.getItemsPerPage(), page, true,hasUserRights, user.getForbiddenCategories(), Order.asc("name")).getTotal();
+		}
+	}
+
+	@Override
+	public void setItemsPerPage(int itemsPerPage)
+	{
+		this.itemsPerPage = itemsPerPage;
+	}
+
+	public List<CategoryItem> getItems()
+	{
+		return items;
+	}
+
+	public void setItems(List<CategoryItem> items)
+	{
+		this.items = items;
+	}
+
+	public Category getCategory()
+	{
+		return category;
+	}
+
+	@Override
+	public void setCategory(Category category)
+	{
+		this.category = category;
+	}
+
+	public Group getGroup()
+	{
+		return group;
+	}
+
+	@Override
+	public void setGroup(Group group)
+	{
+		this.group = group;
+	}
+
+	public String search()
+	{
+		searchList = categoryItemDelegate.search(keyword, user.getCompany());
+		searchList.addAll(categoryItemDelegate.searchByTags(keyword, user.getCompany()));
+
+		if(categoryItemDelegate.findSKU(user.getCompany(), keyword) != null)
+		{
+			searchList.add(categoryItemDelegate.findSKU(user.getCompany(), keyword));
+		}
+
+		if(company.getId() == CompanyConstants.HIPRECISION_DATA_SEARCH)
+		{
+			searchList.addAll(categoryItemDelegate.findAllByGroupAndKeywordWithPaging(-1, -1, keyword, company, false, group, null, null, null).getList());
+		}
+
+		final HashSet h = new HashSet(searchList);
+		searchList.clear();
+		searchList.addAll(h);
+		//arange alphabetically
+		
+		Collections.sort(searchList,new Comparator<CategoryItem>(){
+			@Override
+			public int compare(final CategoryItem object1, final CategoryItem object2) {
+				return object1.getName().compareTo(object2.getName());
+			}
+		});
+		return SUCCESS;
+	}
+
+	@Override
+	public void setCompany(Company company)
+	{
+		this.company = company;
+	}
+
+	public FileInputStream getFInStream()
+	{
+		return fInStream;
+	}
+
+	public void setFInStream(FileInputStream fInStream)
+	{
+		this.fInStream = fInStream;
+	}
+	
+	public FileInputStream getInputStream() {
+		return inputStream;
+	}
+
+	public void setInputStream(FileInputStream inputStream) {
+		this.inputStream = inputStream;
+	}
+
+	public long getContentLength()
+	{
+		return contentLength;
+	}
+
+	public void setContentLength(long contentLength)
+	{
+		this.contentLength = contentLength;
+	}
+
+	@Override
+	public void setServletContext(ServletContext servletContext)
+	{
+		this.servletContext = servletContext;
+	}
+
+	public String getFilePath()
+	{
+		return filePath;
+	}
+
+	public void setFilePath(String filePath)
+	{
+		this.filePath = filePath;
+	}
+
+	public String getFileName()
+	{
+		return fileName;
+	}
+
+	public void setFileName(String fileName)
+	{
+		this.fileName = fileName;
+	}
+
+	public String[] getDayArray()
+	{
+
+		return new String[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+
+	}
+	
+	/*
+	 * Kuysen Enterprise
+	 * Fittings
+	 * getter
+	 * Daniel B. Sario
+	 */
+	public List<CategoryItem> getFittingsItem() {
+		return categoryDelegate.find(6118L).getItems();
+	}
+
+	/**
+	 * @return the companySettings
+	 */
+	public CompanySettings getCompanySettings() {
+		return companySettings;
+	}
+
+	/**
+	 * @param companySettings the companySettings to set
+	 */
+	public void setCompanySettings(CompanySettings companySettings) {
+		this.companySettings = companySettings;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Category> getAgianKDCategories(){
+		Group group = groupDelegate.find(611L);
+		List<Category> gal = categoryDelegate.findAll(company, group).getList();
+		return gal;
+		
+	}
+
+	public List<Category> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(List<Category> categories) {
+		this.categories = categories;
+	}
+
+	
+	
+	
+	
+}

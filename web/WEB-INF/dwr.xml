@@ -1,0 +1,171 @@
+<!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN" "http://getahead.org/dwr//dwr20.dtd">
+
+<dwr>
+  <allow>
+   
+    <create creator="new" javascript="DWRMultiPageAction">
+      <param name="class" value="com.ivant.cms.action.admin.dwr.DWRMultiPageAction"/>
+    </create> 
+    
+    <create creator="new" javascript="DWRImageAction">
+      <param name="class" value="com.ivant.cms.action.admin.dwr.DWRImageAction"/>
+    </create> 
+    
+    <create creator="new" javascript="DWRFileAction">
+      <param name="class" value="com.ivant.cms.action.admin.dwr.DWRFileAction"/>
+    </create> 
+    
+    <create creator="new" javascript="DWRFormSubmissionAction">
+      <param name="class" value="com.ivant.cms.action.admin.dwr.DWRFormSubmissionAction"/>
+    </create>  
+    
+    <create creator="new" javascript="DWRComponentCategoryAction">
+    	<param name="class" value="com.ivant.cms.action.admin.dwr.DWRComponentCategoryAction"></param>
+    </create>
+    
+    <create creator="new" javascript="DWRVariationAction">
+      <param name="class" value="com.ivant.cms.action.dwr.DWRVariationAction"/>
+    </create> 
+    
+    <create creator="new" javascript="DWRPaymentAction">
+      <param name="class" value="com.ivant.cms.action.dwr.DWRPaymentAction"/>
+    </create>  
+    
+    <create creator="new" javascript="DWRItemAction">
+      <param name="class" value="com.ivant.cms.action.dwr.DWRItemAction"/>
+    </create>  
+    
+	<create creator="new" javascript="DWRPackageItemAction">
+		<param name="class" value="com.ivant.cms.action.admin.dwr.DWRPackageItemAction"/>
+	</create>
+    
+    <!-- Bulletin Action DWR-->
+    <create creator="new" javascript="DWRBulletinAction">    
+    	<param name="class" value="com.ivant.cms.action.admin.dwr.DWRBulletinAction"></param>
+    </create>
+    
+    <!-- Cart Action DWR-->
+    <create creator="new" javascript="DWRCartAction">    
+    	<param name="class" value="com.ivant.cms.action.dwr.DWRCartAction"></param>
+    </create>  
+    
+    <!-- Order Action DWR-->
+    <create creator="new" javascript="DWROrderAction">    
+    	<param name="class" value="com.ivant.cms.action.admin.dwr.DWROrderAction"></param>
+    </create>
+    
+    <!-- Item Attibute Action DWR-->
+    <create creator="new" javascript="DWRItemAttributeAction">    
+    	<param name="class" value="com.ivant.cms.action.admin.dwr.DWRItemAttributeAction"></param>
+    </create>
+    
+    <!-- Wishlist Action DWR-->
+    <create creator="new" javascript="DWRWishlistAction">    
+    	<param name="class" value="com.ivant.cms.action.admin.dwr.DWRWishlistAction"></param>
+    </create>
+    
+    <!-- Preset Value Action DWR-->
+    <create creator="new" javascript="DWRPresetValueAction">    
+    	<param name="class" value="com.ivant.cms.action.admin.dwr.DWRPresetValueAction"></param>
+    </create>
+    
+    <!-- HTML Content Action DWR-->
+    <create creator="new" javascript="DWRHtmlContentAction">    
+    	<param name="class" value="com.ivant.cms.action.admin.dwr.DWRHtmlContentAction"></param>
+    </create>  
+    
+    <create creator="new" javascript="DWRCategoryAction">
+    	<param name="class" value="com.ivant.cms.action.dwr.DWRCategoryAction"></param>
+    </create>
+    
+    <create creator="new" javascript="DWRCategoryItemAction">
+    	<param name="class" value="com.ivant.cms.action.dwr.DWRCategoryItemAction"></param>
+    </create>
+    
+    <create creator="new" javascript="DWRSinglePageAction">
+    	<param name="class" value="com.ivant.cms.action.dwr.DWRSinglePageAction"></param>
+    </create>
+    
+    <create creator="new" javascript="DWRComponentAction">
+    	<param name="class" value="com.ivant.cms.action.dwr.DWRComponentAction"></param>
+    </create>
+    
+    <create creator="new" javascript="DWRItemCommentAction">
+    	<param name="class" value="com.ivant.cms.action.admin.dwr.DWRItemCommentAction"></param>
+    </create>
+    
+    <create creator="new" javascript="DWRMemberAction">
+    	<param name="class" value="com.ivant.cms.action.admin.dwr.DWRMemberAction"></param>
+    </create>
+    
+    <create creator="new" javascript="DWRMemberFileItemsAction">
+    	<param name="class" value="com.ivant.cms.action.admin.dwr.DWRMemberFileItemsAction"></param>
+    </create>
+    
+    <create creator="new" javascript="DWRPromoCodeAction">
+    	<param name="class" value="com.ivant.cms.action.dwr.DWRPromoCodeAction"></param>
+    </create>
+    
+    <convert converter="bean" match="com.ivant.cms.entity.SinglePage" >
+        <param name="include" value="id, name"/>
+    </convert>
+    <convert converter="bean" match="com.ivant.cms.entity.Company" />
+    <convert converter="bean" match="com.ivant.cms.entity.User" />
+    <convert converter="bean" match="com.ivant.cms.action.dwr.DWRItemVariation" />
+    <convert converter="bean" match="com.ivant.cms.entity.PresetValue" />
+    <convert converter="bean" match="com.ivant.cms.entity.Category">
+		<param name="include" value="id, name"/>
+	</convert>
+	<convert converter="bean" match="com.ivant.cms.entity.CategoryItem">
+		<param name="include" value="id, name, description, shortDescription, 
+		itemSchedule,images,brand,categoryItemOtherFields,price,categoryItemPrices,isOutOfStock,parent,sku,otherDetails,createdOn,updatedOn 
+		"/>
+	</convert>
+    <convert converter="bean" match="com.ivant.cms.entity.Brand">
+		<param name="include" value="id, name ,images"/>
+	</convert>
+	<convert converter="bean" match="com.ivant.cms.entity.ItemImage">
+	    <param name="include" value="original,thumbnail,image2,image3"/>
+	</convert>
+	<convert converter="bean" match="com.ivant.cms.entity.BrandImage" />
+	<convert converter="bean" match="com.ivant.cms.entity.CategoryItemOtherField">
+		<param name="include" value="otherField,content"/>	
+	</convert>
+	<convert converter="bean" match="com.ivant.cms.entity.OtherField" >
+		<param name="include" value="name"/>
+	</convert>
+	<convert converter="bean" match="com.ivant.cms.entity.OtherFieldValue" />
+	<convert converter="bean" match="com.ivant.cms.entity.Group" />
+	<convert converter="bean" match="com.ivant.cms.entity.CategoryItemPrice">
+		<param name="include" value="name,amount,categoryItemPriceName"/>
+	</convert>
+	<convert converter="bean" match="com.ivant.cms.entity.CategoryItemPriceName">
+		<param name="include" value="name"/>
+	</convert>
+	<convert converter="bean" match="com.ivant.cms.entity.CategoryItemPackage">
+		<param name="include" value="iPackage"/>
+	</convert>
+	<convert converter="bean" match="com.ivant.cms.entity.IPackage">
+		<param name="include" value="name,sku"/>
+	</convert>
+	
+	<convert converter="bean" match="com.ivant.utils.CategoryItemPackageWrapper">
+		<param name="include" value="id,name,sku,parentGroupId"/>
+	</convert>
+		
+	<convert converter="bean" match="com.ivant.cms.entity.ItemComment" />
+	
+	<convert converter="bean" match="com.ivant.cms.entity.SavedEmail" />
+	
+	<convert converter="bean" match="com.ivant.cms.entity.Member" />
+	
+	<convert converter="bean" match="com.ivant.cms.entity.PromoCode" />
+	
+	<convert converter="bean" match="com.ivant.cms.entity.list.ObjectList" >
+		<param name="include" value="total,list"/>
+	</convert>
+	
+    <convert converter="collection" match="java.util.List" />    
+     
+  </allow>
+</dwr>

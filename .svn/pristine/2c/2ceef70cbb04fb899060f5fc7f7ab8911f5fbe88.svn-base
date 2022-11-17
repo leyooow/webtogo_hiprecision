@@ -1,0 +1,11 @@
+<html>
+    <head>
+        <script language="javascript" src="protoplasm.js"></script>
+        <script language="javascript">
+            Protoplasm.use('timepicker').transform('input.timepickerabc');
+        </script>
+    </head>
+    <body>
+        <input type="text" name="timeabc" class="timepickerabc" readonly/>
+    </body>
+</html>

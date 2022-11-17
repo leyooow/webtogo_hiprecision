@@ -1,0 +1,9 @@
+ssh:
+username -> root
+password -> web2go1v@nt2009!
+
+mysql:
+username -> web2gouser
+password -> web2go07I3
+port -> 12888
+

@@ -1,0 +1,14 @@
+#companyhome td {
+	font-size: 11px;
+}
+
+#companyhome h3 {
+	font-size: 16x;
+	color: #cd7301;
+}
+ 
+#companyhome a.companyMenu:link, a.companyMenu:visited, a.companyMenu:hover {
+	color: #cd7301;
+	background: #ffffff;
+}
+

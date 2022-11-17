@@ -1,0 +1,366 @@
+package com.ivant.utils.hibernate;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Environment;
+
+import com.ivant.cms.action.KuysenCmsDispatcherAction;
+import com.ivant.cms.entity.*;
+
+public class HibernateUtil {
+
+	private static Logger log = Logger.getLogger(HibernateUtil.class);
+	private static SessionFactory sessionFactory = null;
+	public static AnnotationConfiguration configuration = null;
+	
+	private static final ThreadLocal<Session> localSession = new ThreadLocal<Session>();
+	
+	private static final Lock lock = new ReentrantLock();
+	
+	public static AnnotationConfiguration getConfiguration()
+	{
+		return configuration;
+	}
+	
+	private static void addClassesToAnnotationConf(AnnotationConfiguration conf) {
+		for(Class<?> c : getClasses())
+		{
+			conf.addAnnotatedClass(c);
+		}
+	} 
+	
+	private static void addClassesToAnnotationConfTest(AnnotationConfiguration conf) {
+		for(Class<?> c : getClasses())
+		{
+			conf.addAnnotatedClass(c);
+		}
+	}
+	
+	private static List<Class<?>> getClasses()
+	{
+		final List<Class<?>> classes = new LinkedList<Class<?>>();
+		
+		classes.add(AbstractPage.class);
+		classes.add(Activity.class);
+		classes.add(AplicMember.class);
+		classes.add(Attribute.class);
+		classes.add(BatchUpdateExcelFile.class);
+		classes.add(Billing.class);
+		classes.add(Brand.class);
+		classes.add(BrandImage.class);
+		classes.add(CartOrder.class);
+		classes.add(CartOrderItem.class);
+		classes.add(CartOrderStatusHistory.class);
+		classes.add(Category.class);
+		classes.add(CategoryFile.class);
+		classes.add(CategoryImage.class);
+		classes.add(CategoryItem.class);
+		classes.add(CategoryItemComponent.class);
+		classes.add(CategoryItemHistory.class);
+		classes.add(CategoryItemLanguage.class);
+		classes.add(CategoryItemOtherField.class);
+		classes.add(CategoryItemOtherFieldBranch.class);
+		classes.add(CategoryItemOtherFieldMachine.class);
+		classes.add(CategoryItemOtherFieldLanguage.class);
+		classes.add(CategoryItemPackage.class);
+		classes.add(CategoryItemPrice.class);
+		classes.add(CategoryItemPriceName.class);
+		classes.add(CategoryLanguage.class);
+		classes.add(Comment.class);
+		classes.add(CommentFile.class);
+		classes.add(CommentLike.class);
+		classes.add(Company.class);
+		classes.add(CompanySettings.class);
+		classes.add(Compare.class);
+		classes.add(Component.class);
+		classes.add(ComponentCategory.class);
+		classes.add(ContactUs.class);
+		classes.add(Event.class);
+		classes.add(EventGroup.class);
+		classes.add(FormPage.class);
+		classes.add(FormPageLanguage.class);
+		classes.add(Group.class);
+		classes.add(GroupImage.class);
+		classes.add(GroupLanguage.class);
+		classes.add(GroupMessage.class);
+		classes.add(IPackage.class);
+		classes.add(ItemAttribute.class);
+		classes.add(ItemComment.class);
+		classes.add(ItemFile.class);
+		classes.add(ItemImage.class);
+		classes.add(ItemVariation.class);
+		classes.add(ItemVariationImage.class);
+		classes.add(KuysenSalesArea.class);
+		classes.add(KuysenSalesClient.class);
+		classes.add(KuysenSalesOptionalSet.class);
+		classes.add(KuysenSalesOrderSet.class);
+		classes.add(KuysenSalesParentOrderSet.class);
+		classes.add(KuysenSalesTransaction.class);
+		classes.add(Language.class);
+		classes.add(LastUpdated.class);
+		classes.add(Log.class);
+		classes.add(Member.class);
+		classes.add(MemberFile.class);
+		classes.add(MemberFileItems.class);
+		classes.add(MemberImages.class);
+		classes.add(MemberLog.class);
+		classes.add(MemberMessage.class);
+		classes.add(MemberPageFile.class);
+		classes.add(MemberPoll.class);
+		classes.add(MemberShippingInfo.class);
+		classes.add(MemberType.class);
+		classes.add(Message.class);
+		classes.add(MicePhilippinesMember.class);
+		classes.add(MultiPage.class);
+		classes.add(MultiPageFile.class);
+		classes.add(MultiPageImage.class);
+		classes.add(MultiPageLanguage.class);
+		classes.add(Notification.class);
+		classes.add(OSSShippingArea.class);
+		classes.add(OSSShippingLocation.class);
+		classes.add(OSSShippingRate.class);
+		classes.add(OrderItemFile.class);
+		classes.add(OtherDetail.class);
+		classes.add(OtherField.class);
+		classes.add(OtherFieldValue.class);
+		classes.add(PageFile.class);
+		classes.add(PageImage.class);
+		classes.add(Payment.class);
+		classes.add(PreOrder.class);
+		classes.add(PreOrderItem.class);
+		classes.add(PresetValue.class);
+		classes.add(Promo.class);
+		classes.add(PromoCode.class);
+		classes.add(Rates.class);
+		classes.add(Referral.class);
+		classes.add(RegistrationItemOtherField.class);
+		classes.add(SavedEmail.class);
+		classes.add(Schedule.class);
+		classes.add(ShippingTable.class);
+		classes.add(ShoppingCart.class);
+		classes.add(ShoppingCartItem.class);
+		classes.add(SinglePage.class);
+		classes.add(SinglePageLanguage.class);
+		classes.add(Terms.class);
+		classes.add(TruecareTestimonial.class); 
+		classes.add(User.class);
+		classes.add(Variation.class);
+		classes.add(VariationGroup.class);
+		classes.add(Wishlist.class);		
+		classes.add(WishlistType.class);
+		classes.add(PortalActivityLog.class);
+		classes.add(CartOrderPromoCode.class);
+		classes.add(KuysenCmsDispatcherAction.class);
+		classes.add(WebtogoExcludedEmails.class);
+		
+		return Collections.unmodifiableList(classes);
+	}
+	
+//	private static void setUpC3P0(AnnotationConfiguration conf)
+//	{
+//		conf.setProperty(Environment.C3P0_ACQUIRE_INCREMENT, "1");
+//		conf.setProperty(Environment.C3P0_IDLE_TEST_PERIOD, "300");
+//		conf.setProperty(Environment.C3P0_MAX_SIZE, "100");
+//		conf.setProperty(Environment.C3P0_MAX_STATEMENTS, "0");
+//		conf.setProperty(Environment.C3P0_MIN_SIZE, "10");
+//		conf.setProperty(Environment.C3P0_TIMEOUT, "100");
+//	}
+	
+	public static void initAnnotation()
+	{
+		//check if selenium test will be conducted
+		lock.lock();
+		try
+		{
+			dispose();
+			AnnotationConfiguration conf = new AnnotationConfiguration();
+			conf.setProperty(Environment.DATASOURCE, "java:comp/env/jdbc/datasource");
+			
+			conf.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.NoCacheProvider");
+			conf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+			conf.setProperty(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
+			conf.setProperty(Environment.AUTOCOMMIT, "false");
+			conf.setProperty(Environment.SHOW_SQL, "true");
+			conf.setProperty(Environment.HBM2DDL_AUTO, "update");
+			conf.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JDBCTransactionFactory");
+			
+			addClassesToAnnotationConf(conf);
+			configuration = conf;
+			
+			sessionFactory = conf.buildSessionFactory();
+		}
+		finally
+		{
+			lock.unlock();
+		}
+	}
+	
+	public static void initAnnotationTest()
+	{
+		initAnnotationTest("create", false);
+	}
+	
+	public static void initAnnotationTest(boolean showSQL)
+	{
+		initAnnotationTest("create", showSQL);
+	}
+	
+	/**
+	 * 
+	 * @param hbm2ddl values are update, validate, create, create-drop
+	 */
+	public static void initAnnotationTest(String hbm2ddl)
+	{
+		initAnnotationTest(hbm2ddl, false);
+	}
+
+	/**
+	 * 
+	 * @param hbm2ddl values are update, validate, create, create-drop
+	 * @param showSQL TODO
+	 */
+	public static void initAnnotationTest(String hbm2ddl, boolean showSQL)
+	{
+		lock.lock();
+		try
+		{
+			dispose();
+			AnnotationConfiguration conf = new AnnotationConfiguration();
+			conf.setProperty(Environment.DRIVER, "com.mysql.jdbc.Driver");
+			conf.setProperty(Environment.URL, "jdbc:mysql://localhost/webtogo");
+			conf.setProperty(Environment.USER, "root");
+			conf.setProperty(Environment.PASS, "root");
+			
+			conf.setProperty(Environment.CACHE_PROVIDER, "org.hibernate.cache.NoCacheProvider");
+			conf.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+			conf.setProperty(Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
+//			conf.setProperty(Environment.DIALECT, "test.com.ivant.cms.MySQLDialectForUnitTest");
+			conf.setProperty(Environment.AUTOCOMMIT, "false");
+			conf.setProperty(Environment.SHOW_SQL, Boolean.toString(showSQL));
+			conf.setProperty(Environment.HBM2DDL_AUTO, hbm2ddl);
+			conf.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JDBCTransactionFactory");
+			
+//			setUpC3P0(conf);
+			
+			addClassesToAnnotationConfTest(conf);
+			configuration = conf;
+			
+			sessionFactory = conf.buildSessionFactory();
+		}
+		finally
+		{
+			lock.unlock();
+		}
+	}
+	
+	/**
+	 * Dispose/Close the current sessionFactory.
+	 *
+	 */
+	public static void dispose()
+	{
+		lock.lock();
+		try
+		{
+			destroySession();
+			if (sessionFactory != null)
+			{
+				sessionFactory.close();
+			}
+			sessionFactory = null; // initiate garbage collection
+			configuration = null;
+		}
+		finally
+		{
+			lock.unlock();
+		}
+	}
+	
+	/**
+	 * get the session factory
+	 * @return
+	 */
+	public static SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+	
+	public static boolean hasSessionCreated()
+	{
+		return localSession.get() != null;
+	}
+	
+	/**
+	 * Create a session and store it in a thread local.
+	 * @return the session created
+	 */
+	public static Session createSession() {
+		
+		Session s = localSession.get();
+		// Open a new Session, if this Thread has none yet
+		if (s != null) {
+			s.close();
+			throw new IllegalStateException("There is an opened session!");
+		}
+		
+		lock.lock();
+		try
+		{
+			log.debug("Creating a new session! Don't forget to close this session!");
+			s = sessionFactory.openSession();
+			localSession.set(s);
+			return s;
+		}
+		finally
+		{
+			lock.unlock();
+		}
+	}
+	
+	public static void destroySession() 
+	{
+		Session s = localSession.get();
+		localSession.set(null);
+		localSession.remove();
+		if (s != null)
+		{
+			log.debug("Closing current session");
+			try
+			{
+				s.close();
+			}
+			catch (HibernateException e)
+			{
+				log.fatal("HibernateException caught while closing session!", e);
+			}
+		}
+	}
+
+	/**
+	 * get the current session
+	 * @return
+	 */
+	public static Session currentSession() {
+		Session s = localSession.get();
+		if (s == null) {
+			throw new IllegalStateException("Please open a session!");
+		}
+		return s;
+	}
+
+	/**
+	 * this method does not do a thing... if you want to close the session call {@link #destroySession()}
+	 * 
+	 */
+	public static void closeSession(){
+
+	}
+}

@@ -1,0 +1,39 @@
+/**
+ *
+ */
+package com.ivant.constants;
+
+/**
+ * @author Edgar S. Dacpano
+ *
+ */
+public interface WendysConstants
+{
+	public static final String DELIMITER_TEXT = ";";
+	public static final String SUFFIX_BRANCH_ALL = "_All";
+	public static final Long REGISTER_REWARDS_CATEGORY_ID = 8892L;//8883L; //live id = 8892L
+	
+	public static final Long CATEGORY_REWARDS_FIRST_ORDER_ID = 8983L;
+	public static final Long CATEGORY_REWARDS_SECOND_ORDER_ID = 8984L;
+	public static final Long CATEGORY_REWARDS_THIRD_ORDER_ID = 8985L;
+	public static final Long CATEGORY_REWARDS_FOURTH_ORDER_ID = 8986L;
+	public static final Long CATEGORY_REWARDS_FIFTH_ORDER_ID = 8987L;
+	public static final Long CATEGORY_REWARDS_SIXTH_ORDER_ID= 8988L;
+	public static final Long CATEGORY_REWARDS_SEVENTH_ORDER_ID = 8989L;
+	public static final Long CATEGORY_REWARDS_EIGHT_ORDER_ID = 8990L;
+	public static final Long CATEGORY_REWARDS_NINTH_ORDER_ID = 8991L;
+	public static final Long CATEGORY_REWARDS_TENTH_ORDER_ID = 8992L;
+	
+	public static final Long[] WENDYS_ORDER_REWARDS = {
+		CATEGORY_REWARDS_FIRST_ORDER_ID,
+		CATEGORY_REWARDS_SECOND_ORDER_ID,
+		CATEGORY_REWARDS_THIRD_ORDER_ID,
+		CATEGORY_REWARDS_FOURTH_ORDER_ID,
+		CATEGORY_REWARDS_FIFTH_ORDER_ID,
+		CATEGORY_REWARDS_SIXTH_ORDER_ID,
+		CATEGORY_REWARDS_SEVENTH_ORDER_ID,
+		CATEGORY_REWARDS_EIGHT_ORDER_ID,
+		CATEGORY_REWARDS_NINTH_ORDER_ID,
+		CATEGORY_REWARDS_TENTH_ORDER_ID
+	};
+}

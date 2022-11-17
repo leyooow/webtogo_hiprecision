@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+ 
+<struts>
+	<package name="hpds" namespace="/companies/hpds"  extends="jasperreports-default, struts-default, front">
+	 
+	 <interceptors>
+    	<interceptor name="hibernate" class="com.ivant.cms.interceptors.HibernateInterceptor"/> 
+    	<interceptor name="company" class="com.ivant.cms.interceptors.FrontCompanyInterceptor"/> 
+        <interceptor name="cart" class="com.ivant.cms.interceptors.CartItemInterceptor"/>
+        <interceptor name="hibernate" class="com.ivant.cms.interceptors.HibernateInterceptor"/> 
+    	<interceptor name="member" class="com.ivant.cms.interceptors.MemberInterceptor"/>
+    	<interceptor name="email" class="com.ivant.cms.interceptors.EmailInterceptor" />    	
+    	<interceptor name="contextParams" class="com.ivant.cms.interceptors.ContextParamsInterceptor" />
+    	<interceptor name="notificationMessage" class="com.ivant.cms.interceptors.NotificationMessageInterceptor" />   
+         	
+  		<interceptor-stack name="fontstack">
+			<interceptor-ref name="hibernate" />
+			<interceptor-ref name="company" />
+			<interceptor-ref name="member" />
+			<interceptor-ref name="params" />
+			<interceptor-ref name="basicStack" />
+			<interceptor-ref name="notificationMessage" />
+			<interceptor-ref name="contextParams" />	
+			<interceptor-ref name="logger" />
+			<interceptor-ref name="timer" />
+		</interceptor-stack>
+		<interceptor-stack name="loginstack">
+			<interceptor-ref name="email" />
+			<interceptor-ref name="hibernate" />
+			<interceptor-ref name="company" />								
+			<interceptor-ref name="contextParams" />				
+			<interceptor-ref name="basicStack" />				
+			<interceptor-ref name="logger" />
+			<interceptor-ref name="timer" />
+		</interceptor-stack>
+		     
+     </interceptors>
+             
+     <action name="sendCareerEmail" class="com.ivant.cms.action.EmailSenderAction">
+     	<interceptor-ref name="fontstack" />
+     	<result name="success" type="redirect">${successUrl}</result>
+		<result name="error" type="redirect">${errorUrl}</result>
+     </action>
+       
+     <action name="sendContactEmail" class="com.ivant.cms.action.EmailSenderAttachmentsAction">
+     	<interceptor-ref name="fontstack" />
+     	<result name="success" type="redirect">${successUrl}</result>
+		<result name="error" type="redirectAction">
+				<param name="actionName">contact</param>
+				<param name="evt">${error}</param> 
+		</result>
+     </action>
+     
+     <action name="api-getHPDSLabTestPreparation" method="getHPDSLabTestPreparation" 
+         class="com.ivant.cms.action.api.MobileAPIAction">
+   		<interceptor-ref name="fontstack" />
+   		<result name="success" type="stream">
+    		<param name="contentType">application/json</param>
+    		<param name="encoding">utf-8</param>
+    		<param name="inputName">inputStream</param>
+   		</result>
+	</action>
+	
+	<action name="api-getHPDSLabTestPreparation2" method="getHPDSLabTestPreparation2" 
+         class="com.ivant.cms.action.api.MobileAPIAction">
+   		<interceptor-ref name="fontstack" />
+   		<result name="success" type="stream">
+    		<param name="contentType">application/json</param>
+    		<param name="encoding">utf-8</param>
+    		<param name="inputName">inputStream</param>
+   		</result>
+	</action>
+	
+	<action name="api-getHPDSLabTestPreparationSorted" method="getHPDSLabTestPreparationSorted" 
+         class="com.ivant.cms.action.api.MobileAPIAction">
+   		<interceptor-ref name="fontstack" />
+   		<result name="success" type="stream">
+    		<param name="contentType">application/json</param>
+    		<param name="encoding">utf-8</param>
+    		<param name="inputName">inputStream</param>
+   		</result>
+	</action>
+	
+     <action name="*" class="com.ivant.cms.action.PageDispatcherAction">
+     	<interceptor-ref name="fontstack" />
+     	<result name="success">/companies/hpds/jsp/${pageName}.jsp</result>
+     	<result name="error" type="httpheader">404</result>
+     </action>
+       
+     <action name="index" class="com.ivant.cms.action.PageDispatcherAction">
+     	<interceptor-ref name="fontstack" />
+     	<result name="success">/companies/hpds/jsp/${pageName}.jsp</result>
+     	<result name="error" type="httpheader">404</result>
+     </action>
+     
+     <action name="online-search" class="com.ivant.cms.action.PageDispatcherAction" method="onlineSearch">
+     	<interceptor-ref name="fontstack" />
+     	<result name="success">/companies/hpds/jsp/online-search.jsp</result>
+     	<result name="error" type="httpheader">404</result>
+     </action>
+	
+	 <action name="downloaditemfile" method="downloadFile" class="com.ivant.cms.action.PageDispatcherAction">
+			<interceptor-ref name="fontstack" />
+			<result name="success" type="stream">
+			  <param name="inputName">fInStream</param>
+			  <param name="contentDisposition">attachment;filename="${fileName}"</param>
+			  <param name="contentLength">${contentLength}</param>
+			</result>
+	 </action>	
+	 
+	 <!-- download order -->
+	 <action name="downloadOrder" method="generateQuoteReport" class="com.ivant.cms.action.GeneratePdf">
+		<interceptor-ref name="fontstack"></interceptor-ref>
+		<result name="success" type="jasper">
+		<param name="location">/companies/hpds/jasper-report/sample-bean-source.jasper</param>
+		<param name="dataSource">datasource</param>
+		<param name="contentDisposition">disposition</param>
+		<param name="documentName">${docName}</param>
+		<param name="format">PDF</param>
+		</result>
+	 </action>
+	 
+	 <action name="search" class="com.ivant.cms.action.PageDispatcherAction">
+     	<interceptor-ref name="fontstack" />
+     	<result name="success">/companies/hpds/jsp/search.jsp</result>
+     	<result name="error" type="httpheader">404 </result>
+     </action>
+	 
+	 <!-- login actions -->
+	<action name="login" class="com.ivant.cart.action.UserLoginAction">
+		<interceptor-ref name="loginstack"></interceptor-ref>
+		<result name="input">/companies/hpds/jsp/home.jsp</result>
+		<result name="inactive">/companies/hpds/jsp/activationLink.jsp</result>
+		<result name="success" type="redirectAction">
+			<param name="actionName">search</param>
+		</result>
+		<result name="error" type="redirectAction">
+			<param name="actionName">home</param>
+			<param name="notificationMessage">${notificationMessage}</param>
+		</result>
+	</action>  
+     
+     <!-- logout action -->
+     <action name="logout" class="com.ivant.cms.action.LogoutMemberAction">
+        <interceptor-ref name="fontstack" />
+        <result name="login" type="redirectAction">home</result>
+    </action>
+    
+    <!-- add to cart action -->
+	<action name="addToCart" class="com.ivant.cart.action.CartAction" method="addToCart">
+		<interceptor-ref name="fontstack"/>
+			<result name="success" type="redirectAction">
+				<param name="actionName">search</param> 
+				<param name="keyword">${keyword}</param>
+				<param name="item_id">${itemID}</param>
+				<param name="notificationMessage">${notificationMessage}</param>
+			</result> 
+			<result name="error" type="redirectAction">
+				<param name="actionName">search</param>
+				<param name="keyword">${keyword}</param> 
+				<param name="item_id">${itemID}</param>
+				<param name="notificationMessage">${notificationMessage}</param>
+			</result>
+			<result name="input" type="redirectAction">
+				<param name="actionName">home</param>
+				<param name="notificationMessage">${notificationMessage}</param>
+			</result>		
+	</action>
+	
+	<!-- show items in cart -->
+	<action name="quote" class="com.ivant.cart.action.CartAction" method="loadCartItems">
+		<interceptor-ref name="fontstack"/>		
+		<result name="success">/companies/hpds/jsp/quote.jsp</result>		
+		<result name="error" type="redirectAction">search</result>		
+		<result name="input" type="redirectAction">home</result>
+	</action>
+	
+	<!-- shipping info -->
+	<action name="shipping" class="com.ivant.cart.action.ShippingInfoAction">
+		<interceptor-ref name="fontstack"/>				
+		<result name="success">/companies/hpds/jsp/shipping.jsp</result>		
+		<result name="error" type="redirectAction">search</result>		
+		<result name="input" type="redirectAction">home</result>
+	</action>
+	
+	<!-- confirm order action -->
+	<action name="confirmOrder" class="com.ivant.cart.action.OrderAction" method="saveComments">
+        <interceptor-ref name="fontstack" />
+        <result name="input" type="redirectAction">home</result>
+        <result name="success">/companies/hpds/jsp/confirmOrder.jsp</result>
+    </action>
+    
+    <!-- add to order -->
+    <action name="addToOrder" class="com.ivant.cart.action.OrderAction" method="addToOrder">
+	     <interceptor-ref name="fontstack" />
+	     <result name="login" type="redirectAction">home</result>
+	     <result name="success" type="redirectAction">allQuotes</result>
+	     <result name="error" type="redirectAction">quote</result>
+	</action>
+       
+    <!--  view list of orders -->
+	<action name="allQuotes" class="com.ivant.cart.action.OrderAction">
+		<interceptor-ref name="fontstack"/>				
+		<result name="success">/companies/hpds/jsp/allQuotes.jsp</result>		
+		<result name="error" type="redirectAction">search</result>		
+		<result name="input" type="redirectAction">home</result>
+	</action>
+	
+	<!-- view list of order items -->
+	<action name="quotesList" class="com.ivant.cart.action.OrderAction">
+		<interceptor-ref name="fontstack"/>				
+		<result name="success">/companies/hpds/jsp/quotesList.jsp</result>		
+		<result name="error" type="redirectAction">allQuotes</result>		
+		<result name="input" type="redirectAction">home</result>
+	</action>
+  
+	<action name="remoteSaveCategoryItem" method="remoteSaveService" class="com.ivant.cms.action.admin.CategoryItemAction">
+		<interceptor-ref name="fontstack"/>
+		<result name="success">/companies/hpds/jsp/index.jsp</result>
+	</action>
+	
+	<action name="remoteSaveNotif" method="remoteSaveNotif"
+		class="com.ivant.cms.action.PageDispatcherAction">
+		<interceptor-ref name="hibernate" ></interceptor-ref>
+		<interceptor-ref name="company" ></interceptor-ref>
+		<interceptor-ref name="params" ></interceptor-ref>
+		<interceptor-ref name="basicStack" ></interceptor-ref>
+	</action>
+	</package>
+</struts>

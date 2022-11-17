@@ -1,0 +1,128 @@
+<?xml version="1.0"?> 
+<!--
+this should configure everything for deployment for incentel
+-->
+
+<project name="webtogo" default="init" basedir="."
+	xmlns:artifact="urn:maven-artifact-ant"> 
+
+	<property name="project.pom" location="pom.xml" />
+			
+	<!--set the properties which will be used throughout this build file-->
+	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="urn:maven-artifact-ant" />
+	
+	<artifact:pom id="pom" file="${project.pom}" />
+	
+	<artifact:dependencies filesetid="dependency.runtime.fileset" pathid="dependency.runtime.path" usescope="compile">
+		<pom refid="pom" />
+	</artifact:dependencies>
+
+	<property name="jarfile" value="webtogo.jar"/>
+
+	<property name="srcdir" location="src"/>
+	<property name="resources" location="resources"/>
+	<property name="resources.main" location="${resources}/main"/>
+	<property name="resources.live" location="${resources}/live"/>
+	<property name="webdir" location="web"/>
+	
+	<property name="builddir" location="build"/>
+	<property name="compiledir" location="${builddir}/classes"/>
+	
+	<property name="build.jar" location="${builddir}/${jarfile}" />
+
+	<!--set the jar file directory same as the class path directory-->
+	<property name="tomcathome" location="C:/testtomcat6"/>
+	<property name="tomcatlibrary" location="${tomcathome}/common/lib"/>
+	<property name="productiondir" location="${tomcathome}/webapps/ROOT/"/>
+	<property name="productionjardir" location="${productiondir}/WEB-INF/lib"/>
+	
+	<!--<property name="jardir" value="${classpathlibdir}"/>
+	<property name="productiondir" value="/usr/local/tomcat/webapps/ROOT"/>-->
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!--create the directories if not present-->
+		<delete dir="${builddir}" failonerror="false" />
+		<mkdir dir="${builddir}" />
+		<mkdir dir="${compiledir}" />
+	</target>
+
+	<target name="compile" depends="init" description="compiles the source folder and copies the resources"> 
+		<!-- compile the java code don't include the junit test files-->
+		<javac srcdir="${srcdir}" 
+			destdir="${compiledir}" 
+			debug="true"
+			debuglevel="lines,vars,source">
+			<!--class path is set to our file patterns from above-->
+			<classpath>
+				<path refid="dependency.runtime.path" />
+				<fileset dir="${tomcatlibrary}">
+				  <include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</javac>
+		
+		<copy todir="${compiledir}" preservelastmodified="true">
+			<fileset dir="${resources.live}">
+				<include name="**/*" />
+			</fileset>
+			<fileset dir="${resources.main}">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="jar" depends="compile">
+		<jar destfile="${build.jar}" basedir="${compiledir}">
+		</jar>
+		<echo>Created new jar on ${TODAY} ${TSTAMP}</echo>
+	</target>
+	
+	<target name="copyjar" depends="jar, copywebinf">
+		<delete dir="${productionjardir}" verbose="true" />
+		<mkdir dir="${productionjardir}" />
+		
+		<copy todir="${productionjardir}" verbose="true" preservelastmodified="true">
+			<fileset refid="dependency.runtime.fileset" />
+			<file file="${build.jar}" />
+			<mapper type="flatten" />
+		</copy>
+		
+	</target>
+	
+	<target name="copywebinf" depends="init">
+		<copy todir="${productiondir}/WEB-INF" preservelastmodified="true">
+			<fileset dir="${webdir}/WEB-INF/" defaultexcludes="true">
+				<include name="*.xml" />
+				<include name="tld/**/*" />
+				<include name="lib/**/*" />
+			</fileset>
+		</copy>
+	</target>
+		 
+	<target name="copywebfiles" depends="init">
+		<copy todir="${productiondir}" preservelastmodified="true">
+			<fileset dir="${webdir}">
+				<exclude name="META-INF" />
+				<exclude name="META-INF/**/*" />
+				<exclude name="WEB-INF/*.xml" />
+				<exclude name="WEB-INF/lib" />
+				<exclude name="WEB-INF/tld" />
+				<exclude name="WEB-INF/lib/*" />
+				<exclude name="WEB-INF/tld/*" />
+				<exclude name=".svn" />
+				<exclude name=".svn/**/*" />
+				<include name="**/*" />
+				<include name="WEB-INF/awstats/**/*" />
+				<include name="WEB-INF/jsp/**/*" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="deploy" depends="copyjar, copywebfiles">
+		<echo>Build finished on ${TODAY} ${TSTAMP}</echo>
+		<!--main task that deploys our application-->
+	</target>
+
+</project>

@@ -1,0 +1,129 @@
+@charset "utf-8";
+/* CSS Document */
+
+* {
+	border:none;
+	margin:0;
+}
+body {
+	color: #666666;
+	background: #142632;
+	font: 80% tahoma, arial, helvetica, sans-serif;
+	text-align: left; /* for IE */
+	font-size: 14px;
+  
+}
+
+.Login_wrapper {
+	height: 335px;
+	width: 550px;
+	margin: 0 auto;   /* align for good browsers */
+	text-align: left; /* counter the body center */
+	background: #142632;
+}
+
+.text {
+	float: left;
+	height: 40px;
+	width: 270px;
+	padding: 0 0 0 20px;
+	position: static;
+	background: #fff;
+	}
+
+.green-top {
+	width:102%;
+	height:77px;
+	background:url(../images/green_top.jpg) top repeat-x;
+	position:absolute;
+	left:0;
+	top:0;
+}
+.logo {
+	background: url(../images/chamberlainLOGO.jpg) no-repeat;
+	height:44px;
+	width:294px;
+	float: left;
+	}
+
+#loginbox input.loginfrm {
+	display: block;
+	padding: 4px 0 4px 5px;
+	margin-bottom: 5px;	
+	color: #777;
+	font-size: 12px;
+	width: 177px;
+    border-left : 1px solid #D5D5C8;
+    border-top : 1px solid #D5D5C8;
+    border-right : 1px solid #E9E9DE;
+    border-bottom : 1px solid #E9E9DE;		
+	float: left;	
+} 
+
+
+#loginbox {
+	width: 230px;
+	float: right;
+	padding: 30px 0 20px 10px;
+	background-color: #FFFFFF;
+	color: #AE5200;
+	position: auto;
+	
+	
+	}
+#loginbox a {
+	display: inline;
+	color: #666666;
+	font-size: 13px;
+	text-decoration: none;
+	}
+
+#loginbox a:hover {
+	color: #71ba04;
+	text-decoration: none;
+	}
+
+.orange-top {
+	background: url(../images/orange_bg.jpg) repeat-x;
+	height: 88px;
+	}
+.orange-left {
+	background: url(../images/orange_left.jpg) no-repeat;
+	height: 88px;
+	width: 24px;
+	}
+	
+.logo-incentel {
+	height: 119px;
+	width: 270px;
+	float: left;
+	position: static;
+	margin: 10px 0 0 20px;
+	}
+.footer-right {
+	background: url(../images/bottom_right.jpg) no-repeat;
+	height: 43px;
+	width: 33px;
+	float: right;
+	}
+	
+.footer {
+	font: 80% "lucida", "Times New Roman", Times, serif;
+	width: 550px;
+	height: 43px;
+	background: #fff;
+	float: right;
+	
+	}
+	
+.reflection {
+	background: url(../images/reflection.jpg) no-repeat;
+	width: 550px;
+	height: 100px;
+	margin: 0 auto;
+	}		
+.white {
+	background: #fff;
+	width: 550px;
+	height: 200px;
+	}

@@ -1,0 +1,1771 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>webtogo</display-name>
+
+	<session-config>
+		<session-timeout>120</session-timeout>
+	</session-config>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+	</welcome-file-list>
+	
+	<!--CKFINDER CONFIG START  -->
+	<!-- 
+	<servlet>
+	    <description></description>
+	    <display-name>EmployeeController</display-name>
+	    <servlet-name>CRUDServlet</servlet-name>
+	    <servlet-class>politiker.app.controller.EmployeeController</servlet-class>
+	  </servlet>
+	  <servlet-mapping>
+	    <servlet-name>CRUDServlet</servlet-name>
+	    <url-pattern>/companies/politiker/abc</url-pattern>
+	  </servlet-mapping>
+	 -->
+	<servlet>
+		<init-param>
+		  <param-name>crossDomainSessionSecurity</param-name>
+		  <param-value>false</param-value>
+		</init-param> 
+		<servlet-name>ConnectorServlet</servlet-name>
+		<servlet-class>com.ckfinder.connector.ConnectorServlet</servlet-class>
+		<init-param>
+			<param-name>XMLConfig</param-name>
+			<param-value>/WEB-INF/config.xml</param-value>
+		</init-param>
+		<init-param>
+			<param-name>debug</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ConnectorServlet</servlet-name>
+		<url-pattern>
+			/admin/ckfinder/core/connector/java/connector.java
+		</url-pattern>
+	</servlet-mapping>
+	<filter>
+		<filter-name>FileUploadFilter</filter-name>
+		<filter-class>com.ckfinder.connector.FileUploadFilter</filter-class>
+                <init-param>
+                    <param-name>sessionCookieName</param-name>
+                    <param-value>JSESSIONID</param-value>
+                </init-param>
+                <init-param>
+                    <param-name>sessionParameterName</param-name>
+                    <param-value>jsessionid</param-value>
+                </init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>FileUploadFilter</filter-name>
+		<url-pattern>
+			/admin/ckfinder/core/connector/java/connector.java
+     	 </url-pattern>
+	</filter-mapping>
+
+		
+
+	<!--CKFINDER CONFIG END  -->
+
+	<!-- struts configurations -->
+	<filter>
+		<filter-name>struts2</filter-name>
+		<filter-class>
+			org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter
+		</filter-class>
+	</filter>
+	
+	<filter id="html_filter">
+		<filter-name>html-filter</filter-name>
+		<filter-class>com.ivant.cms.filters.HTMLFileFilter</filter-class>
+	</filter>
+
+	<filter id="rest_filter">
+		<filter-name>rest-filter</filter-name>
+		<filter-class>com.ivant.cms.filters.RestFilter</filter-class>
+	</filter>
+	    
+	<filter id="cgi_filter">
+		<filter-name>cgi-filter</filter-name>
+		<filter-class>com.ivant.cms.filters.HTMLFileFilter</filter-class>
+	</filter>
+	
+	<!--CKFINDER  filter start  -->
+	<filter id="ckfinder_filter">
+		<filter-name>ckfinder-filter</filter-name>
+		<filter-class>com.ivant.cms.filters.CkFinderFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>ckfinder-filter</filter-name>
+		<url-pattern>/admin/ckfinder/*</url-pattern>		
+	</filter-mapping>
+
+	<!--CKFINDER  filter end  -->	
+	
+	<!-- REST CONFIG START -->
+	<servlet>
+	    <servlet-name>Jersey REST Service</servlet-name>
+	    <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
+	    
+	    <init-param>
+	        <param-name>com.sun.jersey.config.property.packages</param-name>
+	        <param-value>com.ivant.cms.ws.rest.resource</param-value>
+	    </init-param>
+	    <load-on-startup>1</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+	    <servlet-name>Jersey REST Service</servlet-name>
+	    <url-pattern>/admin/rest/*</url-pattern>
+	</servlet-mapping>
+	
+	<filter-mapping>
+	    <filter-name>rest-filter</filter-name>
+	    <url-pattern>/admin/rest/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- REST CONFIG END -->
+	
+	<filter-mapping>
+		<filter-name>struts2</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>	
+	
+	<filter-mapping>
+		<filter-name>struts2</filter-name>
+		<url-pattern>*.do</url-pattern>
+		<dispatcher>FORWARD</dispatcher>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>html-filter</filter-name>
+		<url-pattern>*.html</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
+	
+	<filter-mapping>
+		<filter-name>cgi-filter</filter-name>
+		<url-pattern>*.pl</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
+	
+	<!-- Timezone listener -->
+	<listener>
+		<listener-class>
+			com.ivant.cms.server.listener.TimeZoneListener
+		</listener-class>
+	</listener>
+
+	<!-- hibernate configurations -->
+	<listener>
+		<listener-class>
+			com.ivant.utils.hibernate.HibernateListener
+		</listener-class>
+	</listener>
+	
+	<listener>
+		<listener-class>
+			com.ivant.cms.server.listener.SessionListener
+		</listener-class>
+	</listener>
+	
+	<!-- Startup listener -->
+	<listener>
+		<listener-class>
+			com.ivant.cms.server.listener.StartupListener
+		</listener-class>
+	</listener>
+
+	<!-- Spring Listener -->
+	<listener>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+	
+	<filter>
+		<filter-name>Hibernate</filter-name>
+		<filter-class>
+			com.ivant.utils.hibernate.HibernateFilter
+		</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>Hibernate</filter-name>
+		<servlet-name>dwr</servlet-name>
+	</filter-mapping>
+	
+	<!-- UTF - 8 Issue Resolver -->
+	<filter>
+		<filter-name>CharsetFilter</filter-name>
+		<filter-class>com.ivant.utils.CharsetFilter</filter-class>
+		<init-param>
+			<param-name>requestEncoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>CharsetFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!-- dwr configuration -->
+
+	<servlet>
+		<servlet-name>dwr</servlet-name>
+		<servlet-class>
+			org.directwebremoting.servlet.DwrServlet
+		</servlet-class>
+		<init-param>
+			<param-name>debug</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<param-name>crossDomainSessionSecurity</param-name> 
+			<param-value>false</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>dwr</servlet-name>
+		<url-pattern>/dwr/*</url-pattern>
+	</servlet-mapping>
+
+	 <servlet>
+		<servlet-name>QuartzInitializer</servlet-name>
+		<display-name>Quartz Initializer Servlet</display-name>
+		<servlet-class>com.ivant.utils.JSUpdateSchedule</servlet-class>
+		<load-on-startup>1</load-on-startup>
+		<init-param>
+		<param-name>shutdown-on-unload</param-name>
+		<param-value>true</param-value>
+		</init-param>
+		<init-param>
+		<param-name>start-scheduler-on-load</param-name>
+		<param-value>true</param-value>
+		</init-param>
+
+	</servlet>
+	
+	
+	
+	
+	
+	
+	<servlet>
+		<servlet-name>Client Configuration</servlet-name>
+		<display-name>Client Configuration Servlet</display-name>
+		<description>
+			Inject/setup the client configuration.
+		</description>
+		<servlet-class>com.ivant.cms.ws.rest.client.ClientConfigurationServlet</servlet-class>
+		
+		<!-- use this template to create a new configuration for a company
+		<init-param>
+			<param-name>companyNameUri</param-name>
+			<param-value>http://74.50.58.59:9548/</param-value>
+			<param-value>http://localhost:7081/ios-apns/</param-value>
+		</init-param>
+		<init-param>
+			<param-name>companyNamePublicKey</param-name>
+			<param-value>Fxn5o8ne8KjOxRrqG2sy</param-value>
+		</init-param>
+		<init-param>
+			<param-name>companyNamePrivateKey</param-name>
+			<param-value>5DjIgAwx0q8C682QOWTJ</param-value>
+		</init-param>
+		<init-param>
+			<param-name>companyNameHeaderNamePublicKey</param-name>
+			<param-value>x-public-key</param-value>
+		</init-param>
+		<init-param>
+			<param-name>companyNameHeaderNameSharedSecret</param-name>
+			<param-value>x-shared-secret</param-value>
+		</init-param>
+		<init-param>
+			<param-name>companyNameParameterNameDateRequest</param-name>
+			<param-value>dtRequest</param-value>
+		</init-param>
+		-->
+		<init-param>
+			<param-name>wendysUri1</param-name>
+			<param-value>http://74.50.58.59:9548/</param-value>
+			<!-- <param-value>http://localhost:7081/ios-apns/</param-value> -->
+		</init-param>
+		<init-param>
+			<param-name>wendysUri2</param-name>
+			<param-value>http://74.50.58.59:9548/</param-value>
+			<!-- <param-value>http://localhost:7081/ios-apns/</param-value> -->
+		</init-param>
+		<init-param>
+			<param-name>wendysPublicKey1</param-name>
+			<param-value>Fxn5o8ne8KjOxRrqG2sy</param-value>
+		</init-param>
+		<init-param>
+			<param-name>wendysPublicKey2</param-name>
+			<param-value>Fxn5o8ne8KjOxRrqG2sy</param-value>
+		</init-param>
+		<init-param>
+			<param-name>wendysPrivateKey1</param-name>
+			<param-value>5DjIgAwx0q8C682QOWTJ</param-value>
+		</init-param>
+		<init-param>
+			<param-name>wendysPrivateKey2</param-name>
+			<param-value>5DjIgAwx0q8C682QOWTJ</param-value>
+		</init-param>
+		<init-param>
+			<param-name>wendysHeaderNamePublicKey1</param-name>
+			<param-value>x-public-key</param-value>
+		</init-param>
+		<init-param>
+			<param-name>wendysHeaderNamePublicKey2</param-name>
+			<param-value>x-public-key</param-value>
+		</init-param>
+		<init-param>
+			<param-name>wendysHeaderNameSharedSecret1</param-name>
+			<param-value>x-shared-secret</param-value>
+		</init-param>
+		<init-param>
+			<param-name>wendysHeaderNameSharedSecret2</param-name>
+			<param-value>x-shared-secret</param-value>
+		</init-param>
+		<init-param>
+			<param-name>wendysParameterNameDateRequest1</param-name>
+			<param-value>dtRequest</param-value>
+		</init-param>
+		<init-param>
+			<param-name>wendysParameterNameDateRequest2</param-name>
+			<param-value>dtRequest</param-value>
+		</init-param>
+		
+		
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<!-- Company Filters -->
+	
+	<!-- Data Search Online Filter - do not uncomment -->
+	<filter>
+		<filter-name>DataSearchOnlineFilter</filter-name>
+		<filter-class>com.ivant.cms.filters.DataSearchOnlineFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>DataSearchOnlineFilter</filter-name>
+		<url-pattern>/companies/hpds/dwr/*</url-pattern>
+	</filter-mapping>
+	
+	<filter>
+		<filter-name>EasternWireFilter</filter-name>
+		<filter-class>com.ivant.cms.filters.EasternWireFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>EasternWireFilter</filter-name>
+		<url-pattern>/companies/easternwire/*</url-pattern>
+	</filter-mapping>
+	
+	<filter>
+		<filter-name>PilipinasBronzeFilter</filter-name>
+		<filter-class>com.ivant.cms.filters.PilipinasBronzeFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>PilipinasBronzeFilter</filter-name>
+		<url-pattern>/companies/pilipinasbronze/*</url-pattern>
+	</filter-mapping>
+	
+	<filter>
+		<filter-name>MyHomeTherapistFilter</filter-name>
+		<filter-class>com.ivant.cms.filters.MyHomeTherapistFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>MyHomeTherapistFilter</filter-name>
+		<url-pattern>/companies/hometherapists/*</url-pattern>
+	</filter-mapping> 
+	
+	<filter>
+		<filter-name>KuysenFilter</filter-name>
+		<filter-class>com.ivant.cms.filters.KuysenFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>KuysenFilter</filter-name>
+		<url-pattern>/companies/kuysen/*</url-pattern>
+	</filter-mapping>
+	
+	
+	<!-- Kaptcha -->
+	<servlet>
+        <servlet-name>Kaptcha</servlet-name>
+        <servlet-class>com.google.code.kaptcha.servlet.KaptchaServlet</servlet-class>
+        
+      <init-param>
+	    	<param-name>kaptcha.textproducer.char.length </param-name>
+    		<param-value>6</param-value>
+		</init-param>        
+	</servlet>
+
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ivant2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/hbc/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/pmc/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/new_webtogo/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/nissan/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/eplus/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/visionarydreaming/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/hpds/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	 
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/bright/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/Transpacific/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/everest/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/gameplace/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/louis/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/silverfinance/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/nkti/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/pco/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/prgaz/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/prgaz2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>		
+
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ecommerce/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/clickbox/kaptcha.jpg</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/giftcard/kaptcha.jpg</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/vivocom/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/bhi/kaptcha.jpg</url-pattern>
+	</servlet-mapping>	
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/apc/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/aplic/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/activeglobal/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/adeventsmanila/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/anya/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/apec/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/aquaknox/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/bluemarble/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/brownbauhaus/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ceo/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/centurypeak/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/cheaptravel/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/coastalbay/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/columnbus/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/crownsupply/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/dml/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ddt/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/dainan/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/duraville/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/dlsau/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/eudesigns/kaptcha.jpg</url-pattern>
+	</servlet-mapping>	
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/familychoice/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ffccwo/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/fliteline/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/fortywinks/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/fourlinq/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/fridaysboracay/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/gemtalk/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/galingpilipino/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/greenfield/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/goldendragon/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/hhasia/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ichef/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/icare/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/iave/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/innovative/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/icontrol/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ishtm/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/jib/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/intrepid/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/jme/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/jamesmirasol/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/jojiilagan/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/kinetic/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/knoxout/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/konstrukt/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/luap/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/leedesigns/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/lagoapparel/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/lilys/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/mds/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/marcventures/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/mamburao/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/medexcel/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/medlink/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/megareach/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/metrodorm/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/msp/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/nla/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/mundipharma/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/nihonweld/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/oceanicspa/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/oceanquestdiva/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/paceos/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/officeman/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/pcvcareer/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/prgazisi/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/panply/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/papa/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/passcor/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/prestigepaper/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/prestigetech/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/platinumgym/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/prestigetech2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ppc/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/proffrancisco/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/puregold/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/qualibet/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/hnh/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ramgo/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ramzen/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/repchem/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/rosehall/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/rgi/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/rudymorete/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/sgo/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/skechers/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/cose/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/spectramind/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/purpletag/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/subzero/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/technolux/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/touchtab/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/tumbletots/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/vanafi/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/varace/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/worldpartnersbank/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+		
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/wpib/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/powerdimensions/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/renewplacenta/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/knutsen/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/drugasia/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/mdt/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/onlinedepot/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/hiprecision/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/pwsi/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/boysenchina/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/korphilippines/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/pinoyhomecoming/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/interislandairlines/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/interislandresorts/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/uniorientagents/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ritegroup/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/mcwi/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ptga/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/easternwire/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/greenfieldeportal/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+              <url-pattern>/companies/qedrill/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/queuerite/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/bpo/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ayv/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/boysenowow/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/watsonglam/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/bestdeal/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/readycolors/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/bellagrandhotel/kaptcha.jpg</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/carrington/kaptcha.jpg</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/progressivelab/kaptcha.jpg</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/hiprecisionvietnam/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/landsystems/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/jojiilagan2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/flourish/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/polikinetic/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/nutrisense/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/megaworld/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/dutchboy2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/gurkka/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/solutionsinc/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/kuysen/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/sanitec/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/rosehall2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/cvclaw/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/fridaysboquete/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/frosch/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/pilipinasbronze/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/pilipinasbronze/mobilesite/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/solphilippines/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/cosco/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/philarc/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/boysennewdesign/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/virtuosopaint/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/healthyhomepaints/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/mraircon/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/hometherapists/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/hiprecisionvietnam2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Kaptcha</servlet-name>
+		<url-pattern>/companies/gurkkatest/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/rbc/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/micephilippines/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/icasiano/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/gurkka/mobilesite/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/sandigan/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/hhasia2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/boysentitan/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/lilys2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/smartdocs/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ccic/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/iieeorgphils/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/totalqueue/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/mydeals/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/sgo2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/citiesevents/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/kuysensales/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/pfa/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/elitetranslations/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/puregold2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/cosco2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/purpletag2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/altair/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/healthonlineasia/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/greyowldigital/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/iconcepts/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/stockbridge/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/fruitmagic/mobilesite/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/mundipharma2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/yondu/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/rizalacademy/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/neltex/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/neltexqs/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/medexcel3/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/landcris/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/edselhealth/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/tomato/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/rhi/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/rhi2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/theapparelauthority/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/mando/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/tomato/mobile/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/khmaya/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/hoegh/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/itsa/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/cosco3/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/quickgrow/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/aa_test/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/quickgrow1/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/davinci/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/rci/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/dav/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/boysencolor/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/zunic3/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/totalqueue2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/politiker/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/citadel/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ayrosohardware/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/swapcanada/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/sphere/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/queuepad/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/plascardindustrial/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/araya/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/rockfort/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/ddt2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/kahaya/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+	    <servlet-name>Kaptcha</servlet-name>
+	    <url-pattern>/companies/pocketpons/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+	    <servlet-name>Kaptcha</servlet-name>
+	    <url-pattern>/companies/wendys/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+	    <servlet-name>Kaptcha</servlet-name>
+	    <url-pattern>/companies/locknlock/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/luap2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/noelle/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/life/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/hartintl/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/queuerite2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/knoxout2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/medicalcenters2/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/dutchboy/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/montero/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/parkza/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/rayuma/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/smi/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/spcmc/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/elcorp/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/kuysenfurnitures/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/boysenpaintonline/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/hiprecisiononlinestore/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/truecare/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/bluelivetofeel/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/purenectar/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/metroquicash/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/xurpas/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+        <servlet-name>Kaptcha</servlet-name>
+        <url-pattern>/companies/wilcon/kaptcha.jpg</url-pattern>
+	</servlet-mapping>
+	
+	
+</web-app>

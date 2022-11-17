@@ -1,0 +1,3975 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+    "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="admin" namespace="/admin"
+		extends="jasperreports-default, struts-default"> 
+		<!--  interceptors  -->
+		<interceptors>
+			<interceptor name="hibernate" class="com.ivant.cms.interceptors.HibernateInterceptor" />
+			<interceptor name="company" class="com.ivant.cms.interceptors.CompanyInterceptor" />
+			<interceptor name="user" class="com.ivant.cms.interceptors.UserInterceptor" />
+			<interceptor name="paging" class="com.ivant.cms.interceptors.PagingInterceptor" />
+			<interceptor name="email" class="com.ivant.cms.interceptors.EmailInterceptor" />
+			<interceptor name="group" class="com.ivant.cms.interceptors.GroupInterceptor" />
+			<interceptor name="category" class="com.ivant.cms.interceptors.CategoryInterceptor" />
+			<interceptor name="pages" class="com.ivant.cms.interceptors.PagesInterceptor" />
+			<interceptor name="forms" class="com.ivant.cms.interceptors.FormsInterceptor" />
+			<interceptor name="contextParams" class="com.ivant.cms.interceptors.ContextParamsInterceptor" />
+			<interceptor name="terms" class="com.ivant.cms.interceptors.TermsInterceptor" />
+
+			<interceptor-stack name="adminfileuploadstack">
+				<interceptor-ref name="email" />
+				<interceptor-ref name="hibernate" />
+				<interceptor-ref name="company" />
+				<interceptor-ref name="user" />
+				<interceptor-ref name="contextParams" />
+				<interceptor-ref name="terms" />
+				<interceptor-ref name="group" />
+				<interceptor-ref name="category" />
+				<interceptor-ref name="pages" />
+				<interceptor-ref name="fileUpload" />
+				<interceptor-ref name="params" />
+				<interceptor-ref name="basicStack" />
+				<interceptor-ref name="logger" />
+				<interceptor-ref name="timer" />
+			</interceptor-stack>
+
+			<interceptor-stack name="adminstack">
+				<interceptor-ref name="email" />
+				<interceptor-ref name="hibernate" />
+				<interceptor-ref name="company" />
+				<interceptor-ref name="contextParams" />
+				<interceptor-ref name="user" />
+				<interceptor-ref name="terms" />
+				<interceptor-ref name="group" />
+				<interceptor-ref name="category" />
+				<interceptor-ref name="pages" />
+				<interceptor-ref name="forms" />
+				<interceptor-ref name="params" />
+				<interceptor-ref name="basicStack" />
+				<interceptor-ref name="logger" />
+				<interceptor-ref name="timer" />
+			</interceptor-stack>
+
+
+			<interceptor-stack name="adminstack2">
+				<interceptor-ref name="hibernate" />
+				<interceptor-ref name="user" />
+				<interceptor-ref name="params" />
+				<interceptor-ref name="basicStack" />
+				<interceptor-ref name="logger" />
+				<interceptor-ref name="timer" />
+			</interceptor-stack>
+
+			<interceptor-stack name="fontstack2">
+				<interceptor-ref name="hibernate" />
+				<interceptor-ref name="company" />
+				<!-- 
+				<interceptor-ref name="params" />
+				<interceptor-ref name="basicStack" />
+				<interceptor-ref name="logger" />
+				<interceptor-ref name="timer" />
+				 -->
+			</interceptor-stack>
+
+			<interceptor-stack name="loginstack">
+				<interceptor-ref name="email" />
+				<interceptor-ref name="hibernate" />
+				<interceptor-ref name="company" />
+				<interceptor-ref name="contextParams" />
+				<interceptor-ref name="basicStack" />
+				<interceptor-ref name="logger" />
+				<interceptor-ref name="timer" />
+			</interceptor-stack>
+
+			<!-- bulletin interceptor -->
+			<interceptor-stack name="basicRetrieve">
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="store">
+					<param name="operationMode">RETRIEVE</param>
+				</interceptor-ref>
+			</interceptor-stack>
+
+		</interceptors>
+
+		
+		<global-results>
+			<result name="error">/WEB-INF/jsp/error404.jsp
+			</result>
+			<result name="login" type="redirectAction">
+				<param name="actionName">login</param>
+			</result>
+			<result name="terms" type="redirectAction">
+				<param name="actionName">terms</param>
+			</result>
+			<result name="dashboard" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</global-results>
+		 
+
+		<action name="downloadOrder" method="generateOrderReport"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+		
+		<action name="giftcardDownloadOrder" method="generateGiftcardOrderReport"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<action name="ecommerceDownloadOrder" method="generateEcommerceOrderReport"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<action name="HPDSdownloadOrder" method="generateQuoteReport"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<action name="gurkkaDownloadOrder" method="gurkkaDownloadOrder"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<action name="downloadBillingSummary" method="generateBillingsSummaryReport"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<action name="downloadBillingLastPayment" method="generateBillingLastPayment"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<action name="downloadBillingCancelled" method="generateBillingCancelled"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<action name="downloadRequestForm" method="generateRequestForm"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<action name="downloadBillingPending" method="generateBillingPending"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<action name="downloadCompaniesDirectory" method="generateCompaniesDirectory"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<action name="downloadCompaniesDirectoryXLS" method="generateCompaniesDirectoryXLS"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadBillingCancelledXLS" method="generateBillingCancelledXLS"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadBillingPendingXLS" method="generateBillingPendingXLS"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadBillingLastPaymentXLS" method="generateBillingLastPaymentXLS"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<!--  Politiker - Repor of Politicians Details -->
+		<action name="politiciansDetailsXLS" method="politiciansDetailsXLS"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<!-- download PDF -->
+		<action name="downloadCertificatePdf" method="generateCertificate"
+			class="com.ivant.cms.action.GeneratePdf">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<!-- terms -->
+		<action name="terms" class="com.ivant.cms.action.admin.TermsAction">
+			<interceptor-ref name="hibernate" />
+			<interceptor-ref name="company" />
+			<interceptor-ref name="user" />
+			<interceptor-ref name="basicStack" />
+			<result name="input">/WEB-INF/jsp/admin/terms.jsp
+			</result>
+			<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+			<result name="userGroup" type="redirectAction">
+				<param name="actionName">members</param>
+			</result>
+			<result name="userSubGroup" type="redirectAction">
+				<param name="actionName">members</param>
+			</result>
+		</action>
+		<!-- may 3 2012 for term decline  -->
+		<action name="declined" class="com.ivant.cms.action.admin.TermsAction" method="declined">
+			<interceptor-ref name="hibernate" />
+			<interceptor-ref name="company" />
+			<interceptor-ref name="user" />
+			<interceptor-ref name="basicStack" />
+			<result name="declined" type="redirectAction">
+				<param name="actionName">logout</param>
+			</result>
+		</action>
+		
+
+
+		<!-- login actions -->
+		<action name="login" class="com.ivant.cms.action.admin.LoginAction">
+			<interceptor-ref name="loginstack"></interceptor-ref>
+			<result name="login">/WEB-INF/jsp/admin/login.jsp
+			</result>
+			<result name="first" type="redirectAction">
+				<param name="actionName">terms</param>
+			</result>
+			<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+			<result name="userGroup" type="redirectAction">
+				<param name="actionName">members</param>
+			</result>
+			<result name="userSubGroup" type="redirectAction">
+				<param name="actionName">members</param>
+			</result>
+			<result name="hpdosStaff" type="redirectAction">
+				<param name="actionName">order</param>
+			</result>
+		</action>
+
+		<!-- logout action -->
+		
+		<action name="logout" class="com.ivant.cms.action.admin.LogoutAction">
+			<interceptor-ref name="hibernate" />
+			<interceptor-ref name="company" />
+			<result name="login">/WEB-INF/jsp/admin/login.jsp</result>
+		</action>
+
+		<!-- forgot password -->
+		<action name="forgotPassword" class="com.ivant.cms.action.admin.ForgotPasswordAction">
+			<interceptor-ref name="hibernate" />
+			<interceptor-ref name="company" />
+			<interceptor-ref name="basicStack" />
+			<result name="input">/WEB-INF/jsp/admin/forgotPassword.jsp
+			</result>
+			<result name="error">/WEB-INF/jsp/admin/forgotPassword.jsp
+			</result>
+			<result name="success" type="redirectAction">
+				<param name="actionName">forgotPasswordSuccess</param>
+			</result>
+		</action>
+
+		<action name="forgotPasswordSuccess" class="com.opensymphony.xwork2.ActionSupport">
+			<result>/WEB-INF/jsp/admin/forgotPasswordSuccess.jsp
+			</result>
+		</action>
+
+		<!--  dashboard -->
+		<action name="dashboard" class="com.ivant.cms.action.admin.DashboardAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="none">/WEB-INF/jsp/admin/dashboard.jsp
+			</result>
+			<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<!--  logs -->
+		<action name="logs" class="com.ivant.cms.action.admin.LogsAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="none">/WEB-INF/jsp/admin/logs.jsp
+			</result>
+			<result name="success">/WEB-INF/jsp/admin/logs.jsp
+			</result>
+		</action>
+
+		<action name="memberLogs" class="com.ivant.cms.action.admin.LogsAction"
+			method="memberLogs">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="none">/WEB-INF/jsp/admin/memberLogs.jsp
+			</result>
+			<result name="success">/WEB-INF/jsp/admin/memberLogs.jsp
+			</result>
+		</action>
+		
+		<action name="testLogs" class="com.ivant.cms.action.admin.LogsAction"
+			method="testLogs">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="none">/WEB-INF/jsp/admin/testLogs.jsp
+			</result>
+			<result name="success">/WEB-INF/jsp/admin/testLogs.jsp
+			</result>
+		</action>
+		
+		<action name="portalactivities" class="com.ivant.cms.action.admin.LogsAction"
+			method="portalActivityLogs">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="none">/WEB-INF/jsp/admin/portalactivities.jsp
+			</result>
+			<result name="success">/WEB-INF/jsp/admin/portalactivities.jsp
+			</result>
+		</action>
+
+		<!--  statistics -->
+		<action name="statistics" method="statistics"
+			class="com.ivant.cms.action.admin.DashboardAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="none">
+				/awstats/${company.domainName}/awstats.${company.domainName}.html
+			</result>
+			<result name="success" type="redirectAction">
+				<param name="actionName">statistics</param>
+			</result>
+		</action>
+
+		<action name="getstatistics" method="getStatistics"
+			class="com.ivant.cms.action.admin.CompanyAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="none">
+				/awstats/${selectedCompany}/awstats.${selectedCompany}.html</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<!-- promo code -->
+		<action name="promocode" class="com.ivant.cms.action.admin.ListPromoCodeAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/promocodes.jsp
+			</result>
+		</action>
+		
+		<action name="deletepromocode" method="deletePromoCode" 
+			class="com.ivant.cms.action.admin.PromoCodeAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result type="redirectAction">
+				<param name="actionName">promocode</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+		
+		<action name="savepromocode" method="savePromoCode"
+			class="com.ivant.cms.action.admin.PromoCodeAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">promocode</param>
+				<param name="parse">true</param>
+				<param name="evt">${errorType}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+		
+		<action name="editpromocode" method="editPromoCode"
+			class="com.ivant.cms.action.admin.PromoCodeAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/singlepromocode.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+		
+		<action name="savepromocodeform" method="save"
+			class="com.ivant.cms.action.admin.PromoCodeAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">promocode</param>
+				<param name="parse">true</param>
+				<param name="evt">${errorType}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+		
+		<action name="promo" class="com.ivant.cms.action.admin.ListPromoAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/promos.jsp
+			</result>
+		</action>
+		
+		<action name="editpromo" method="editPromo"
+			class="com.ivant.cms.action.admin.PromoAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/editpromo.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+		
+		<action name="savepromo" method="savePromo"
+			class="com.ivant.cms.action.admin.PromoAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">promo</param>
+				<param name="parse">true</param>
+				<param name="evt">${errorType}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+
+		<!-- accounts - billing -->
+		<action name="billing" class="com.ivant.cms.action.admin.ListBillingAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/allbillings.jsp
+			</result>
+		</action>
+
+		<action name="deletebilling" method="delete"
+			class="com.ivant.cms.action.admin.BillingAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result type="redirectAction">
+				<param name="actionName">billing</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<action name="savenewbilling" method="saveNew"
+			class="com.ivant.cms.action.admin.BillingAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">billing</param>
+				<param name="parse">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<action name="editbilling" method="editbilling"
+			class="com.ivant.cms.action.admin.BillingAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/singlebilling.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<action name="savebillingform" method="save"
+			class="com.ivant.cms.action.admin.BillingAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">billing</param>
+				<param name="parse">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<action name="downloadPdf" method="generateReport"
+			class="com.ivant.cms.action.admin.BillingAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/WEB-INF/jasper-report/billing_statement.jasper</param>
+				<param name="dataSource">billingDS</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+
+		<!-- accounts - payment -->
+		<action name="payment" class="com.ivant.cms.action.admin.ListPaymentAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/allpayments.jsp
+			</result>
+		</action>
+
+		<action name="savenewpayment" method="saveNew"
+			class="com.ivant.cms.action.admin.PaymentAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">payment</param>
+				<param name="parse">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<!--  manage companies -->
+		<action name="companies" class="com.ivant.cms.action.admin.ListCompanyAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/companies.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="reports" class="com.ivant.cms.action.admin.ListCompanyAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/reports.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="deletecompany" method="delete"
+			class="com.ivant.cms.action.admin.CompanyAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result type="redirectAction">
+				<param name="actionName">companies</param>
+			</result>
+		</action>
+
+		<action name="savecompany" method="save"
+			class="com.ivant.cms.action.admin.CompanyAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="evt">companysettingsaved</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="remoteSaveNotif" method="remoteSaveNotif"
+			class="com.ivant.cms.action.PageDispatcherAction">
+			<interceptor-ref name="hibernate" ></interceptor-ref>
+			<interceptor-ref name="company" ></interceptor-ref>
+			<interceptor-ref name="params" ></interceptor-ref>
+			<interceptor-ref name="basicStack" ></interceptor-ref>
+		</action>
+		<action name="addDomainName" method="addDomainName"
+			class="com.ivant.cms.action.admin.CompanyAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="evt">companysettingsaved</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		<action name="deleteDomainName" method="deleteDomainName"
+			class="com.ivant.cms.action.admin.CompanyAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="evt">companysettingsaved</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="createcompany" method="saveCompany"
+			class="com.ivant.cms.action.admin.CompanyAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="evt">companycreated</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="editcompany" method="edit"
+			class="com.ivant.cms.action.admin.CompanyAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/editcompany.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+		
+		<action name="copycompany" method="copyCompany"
+			class="com.ivant.cms.action.admin.CompanyAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="evt">companycopied</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+
+		<!--  manage users -->
+		<action name="users" class="com.ivant.cms.action.admin.ListUserAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/users.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="usertab" class="com.ivant.cms.action.admin.ListUserAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result type="redirectAction">
+				<param name="actionName">users</param>
+				<param name="id">${userCompanyID}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="deleteuser" method="delete"
+			class="com.ivant.cms.action.admin.UserAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result type="redirectAction">
+				<param name="actionName">users</param>
+			</result>
+		</action>
+
+		<action name="saveuser" method="save"
+			class="com.ivant.cms.action.admin.UserAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">usertab</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="saveuserrights" method="saveUserPageRights"
+			class="com.ivant.cms.action.admin.UserAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">usertab</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="edituser" method="edit"
+			class="com.ivant.cms.action.admin.UserAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/edituser.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+
+		<!--  manage members -->
+		<action name="members" class="com.ivant.cms.action.admin.ListMemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/members.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="activemembers" class="com.ivant.cms.action.admin.ListMemberAction" method="activeMembers">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/members.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="inactivemembers" class="com.ivant.cms.action.admin.ListMemberAction" method="inactiveMembers">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/members.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="notverifiedmembers" class="com.ivant.cms.action.admin.ListMemberAction" method="notVerifiedMembers">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/members.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="verifiedmembers" class="com.ivant.cms.action.admin.ListMemberAction" method="verifiedMembers">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/members.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="resendactivation" class="com.ivant.cms.action.admin.ListMemberAction" method="resendActivation">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/members.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="watsonaaamembers" method="watsonAAAMembers"
+			class="com.ivant.cms.action.admin.ListMemberAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/watsonaaamembers.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>		
+
+		<action name="watsonmembers" method="watsonMembers"
+			class="com.ivant.cms.action.admin.ListMemberAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/watsonmembers.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="watsonkiddiemembers" method="watsonKiddieMembers"
+			class="com.ivant.cms.action.admin.ListMemberAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/watsonkiddiemembers.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="watsonglammembers" method="watsonGlamMembers"
+			class="com.ivant.cms.action.admin.ListMemberAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/watsonglammembers.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>	
+		
+		<action name="watsonstylemembers" method="watsonStyleMembers"
+			class="com.ivant.cms.action.admin.ListMemberAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/watsonstylemembers.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>		
+		
+		<action name="watsonsusdmembers" method="watsonSUSDMembers"
+			class="com.ivant.cms.action.admin.ListMemberAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/watsonsusdmembers.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="generateWinner" method="generateRandomWinner"
+			class="com.ivant.cms.action.admin.ListMemberAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/watsonmembers.jsp
+			</result>
+			<result name="watsonkiddiecare">/WEB-INF/jsp/admin/watsonkiddiemembers.jsp
+			</result>
+			<result name="watsonaaa">/WEB-INF/jsp/admin/watsonaaamembers.jsp
+			</result>
+			<result name="watsonglam">/WEB-INF/jsp/admin/watsonglammembers.jsp
+			</result>
+			<result name="watsonstyle">/WEB-INF/jsp/admin/watsonstylemembers.jsp
+			</result>
+			<result name="watsonsusd">/WEB-INF/jsp/admin/watsonsusdmembers.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="skechersraffle" method="skechersRaffle"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/skechersraffle.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="downloadSkechersRaffleEntryDetails" method="downloadSkechersRaffleEntryDetails"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="generateSkechersWinner" method="generateSkechersWinner"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/skechersraffle.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="hhasiaraffle" method="hhasiaRaffle"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/hhasiaraffle.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="downloadHHAsiaRaffleEntryDetails" method="downloadHHAsiaRaffleEntryDetails"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="generateHHAsiaWinner" method="generateHHAsiaWinner"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/hhasiaraffle.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<!--  -->
+		
+		<action name="bluewarnerraffle" method="bluewarnerRaffle"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/bluewarnerraffle.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="downloadBluewarnerRaffleEntryDetails" method="downloadBluewarnerRaffleEntryDetails"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<!--  -->
+
+		<action name="memberfiles" method="memberFiles"
+			class="com.ivant.cms.action.admin.ListMemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/memberfiles.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="uploadMemberReceipt" method="edit"
+			class="com.ivant.cms.action.admin.MemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/apcIncludes/uploadMemberReceipt.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="uploadReceipt" method="uploadImage"
+			class="com.ivant.cms.action.UploadMemberFileItems">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+			<result name="success" type="redirectAction">
+				<param name="actionName">editmember</param>
+				<param name="member_id">${member2.id}</param>
+			</result>
+
+		</action>
+
+		<action name="deletemember" method="delete"
+			class="com.ivant.cms.action.admin.MemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result type="redirectAction">
+				<param name="actionName">members</param>
+			</result>
+		</action>
+
+		<action name="savemember" method="save"
+			class="com.ivant.cms.action.admin.MemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">members</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+			<result name="agian" type="redirectAction">
+				<param name="actionName">members</param>
+				<param name="userLoggedIn">true</param>
+			</result>
+		</action>
+		
+		<action name="components" class="com.ivant.cms.action.admin.ComponentAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/component.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="savecomponent" method="save"
+			class="com.ivant.cms.action.admin.ComponentAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">components</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="saveitemcomponent" method="saveItemComponent"
+			class="com.ivant.cms.action.admin.ComponentAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">edititem</param>
+				<param name="group_id">${group.id}</param>
+				<param name="item_id">${item.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="deleteitemcomponent" method="deleteItemComponent"
+			class="com.ivant.cms.action.admin.ComponentAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">edititem</param>
+				<param name="group_id">${group.id}</param>
+				<param name="item_id">${item.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="deletecomponent" method="delete"
+			class="com.ivant.cms.action.admin.ComponentAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">components</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="membertypes" class="com.ivant.cms.action.admin.MemberTypeAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/membertypes.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="savemembertype" method="save"
+			class="com.ivant.cms.action.admin.MemberTypeAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">membertypes</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="message" class="com.ivant.cms.action.admin.MessageAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/message.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="sendmessage" method="sendMessage" class="com.ivant.cms.action.admin.MessageAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">message</param>
+			</result>
+		</action>
+
+		<action name="saveAndAllowSameEmail" method="saveAndAllowSameEmail"
+			class="com.ivant.cms.action.admin.MemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">members</param>
+				<param name="evt">${notificationMessage}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="updateMemberFile" method="saveMemberFile"
+			class="com.ivant.cms.action.admin.MemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">editmember</param>
+				<param name="member_id">${member2.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="updateMemberFileFromList" method="saveMemberFile"
+			class="com.ivant.cms.action.admin.MemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">memberfiles</param>
+				<!--<param name="searchStatus">${searchStatus}</param>-->
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="deleteMemberFileItem" method="deleteMemberFile"
+			class="com.ivant.cms.action.admin.MemberAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">memberfiles</param>
+			</result>
+		</action>
+
+		<action name="updatePCOMemberDetails" class="com.ivant.cms.action.admin.MemberAction"
+			method="updateMemberDetails">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">members</param>
+			</result>
+		</action>
+
+		<action name="editmember" method="edit"
+			class="com.ivant.cms.action.admin.MemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/editmember.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+
+		<action name="saveEditedPCOMemberEvent" method="editEvent"
+			class="com.ivant.cms.action.admin.MemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result type="redirectAction">
+				<param name="actionName">editmember</param>
+				<param name="member_id">${member2.id}</param>
+				<param name="save">saved</param>
+			</result>
+		</action>
+
+
+		<!--  single page / static pages -->
+		<action name="singlepage" class="com.ivant.cms.action.admin.ListSinglePageAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/singlepage.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="addsinglepage" class="com.ivant.cms.action.admin.ListSinglePageAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">singlepage</param>
+				<param name="evt">add</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="savesinglepage" method="save"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+<!-- 			<interceptor-ref name="adminstack" /> -->
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">singlepage</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">singlepage</param>
+				<param name="evt">pageexist</param>
+			</result>
+			<result name="input">/WEB-INF/jsp/admin/singlepage.jsp
+			</result>
+		</action>
+
+		<action name="updatesinglepage" method="save"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+				<param name="evt">update</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+				<param name="evt">updatefailed</param>
+			</result>
+			<result name="input">/WEB-INF/jsp/admin/singlepage.jsp
+			</result>
+		</action>
+
+		<action name="deletesinglepage" method="delete"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">singlepage</param>
+				<param name="evt">delete</param>
+			</result>
+		</action>
+		
+		<action name="savefileaccesrights" method="updateFileAccessRights"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+				<param name="evt">update</param>
+			</result>
+			<result name="multipage" type="redirectAction">
+				<param name="actionName">editmultipagechild</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+				<param name="multipage_id">${multiPage.id}</param>
+				<param name="evt">update</param>
+			</result>
+			
+			<result name="input">/WEB-INF/jsp/admin/singlepage.jsp
+			</result>
+		</action>
+
+		<action name="editsinglepage" method="edit"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editsinglepage.jsp
+			</result>
+			<result name="hpdsked-schedule">/WEB-INF/jsp/admin/editsinglepage-hpdsked.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">singlepage</param>
+			</result>
+		</action>
+
+		<action name="deletesinglepageimage" method="deleteImage"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+				<param name="multipage_id">${multiPage.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">singlepage</param>
+			</result>
+		</action>
+
+		<action name="deletecomment" method="deleteComment"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+				<param name="multipage_id">${multiPage.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">singlepage</param>
+			</result>
+		</action>
+
+		<action name="deleteitemcomment" method="deleteComment"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">edititem</param>
+				<param name="group_id">${item.parentGroup}</param>
+				<param name="item_id">${item.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="deletemultipagefile" method="deleteMultiPageFile"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+				<param name="multipage_id">${multiPage.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">singlepage</param>
+			</result>
+		</action>
+
+		<action name="deletesinglepagefile" method="deleteFile"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">singlepage</param>
+			</result>
+		</action>
+
+		<action name="uploadsinglepageimage" method="uploadImage"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+			</result>
+		</action>
+
+		<action name="uploadsinglepagefile" method="uploadFile"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+			</result>
+		</action>
+
+
+		<!-- activities -->
+
+
+		<action name="activities" class="com.ivant.cms.action.admin.ActivityAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result>/WEB-INF/jsp/admin/activities.jsp
+			</result>
+			<result name="success">/WEB-INF/jsp/admin/activities.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+
+		<action name="savenewactivity" method="save"
+			class="com.ivant.cms.action.admin.ActivityAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">activities</param>
+				<param name="parse">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<action name="editactivity" method="edit"
+			class="com.ivant.cms.action.admin.ActivityAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/singleactivity.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<action name="deleteactivity" method="delete"
+			class="com.ivant.cms.action.admin.ActivityAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">activities</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">activities</param>
+				<param name="evt">deleteFailed</param>
+			</result>
+		</action>
+
+
+		<action name="savebilling" method="save"
+			class="com.ivant.cms.action.admin.ActivityAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">billing</param>
+				<param name="parse">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+
+		<!-- bulletin -->
+		<action name="bulletin" class="com.ivant.cms.action.admin.BulletinAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<interceptor-ref name="basicRetrieve" />
+			<result name="success">/WEB-INF/jsp/admin/bulletin.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<!-- order -->
+		<action name="order" class="com.ivant.cms.action.admin.OrderAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<interceptor-ref name="basicRetrieve" />
+			<result name="success">/WEB-INF/jsp/admin/order.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="bullrunregistrations" class="com.ivant.cms.action.admin.OrderAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<interceptor-ref name="basicRetrieve" />
+			<result name="success">/WEB-INF/jsp/admin/itemregistrations.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="editOrderComment" class="com.ivant.cms.action.admin.OrderAction" method="addOrderComment">
+			<interceptor-ref name="adminfileuploadstack" />
+			<interceptor-ref name="basicRetrieve" />
+			<result name="success">/WEB-INF/jsp/admin/order.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="area" class="com.ivant.cms.action.admin.OSSShippingAreaAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<interceptor-ref name="basicRetrieve" />
+			<result name="success">/WEB-INF/jsp/admin/area.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="savearea" method="save"
+			class="com.ivant.cms.action.admin.OSSShippingAreaAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">area</param>
+				<param name="parse">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<action name="editarea" method="edit"
+			class="com.ivant.cms.action.admin.OSSShippingAreaAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/singlearea.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<action name="deletearea" method="delete"
+			class="com.ivant.cms.action.admin.OSSShippingAreaAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">area</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">area</param>
+				<param name="evt">deleteFailed</param>
+			</result>
+		</action>
+
+		<action name="arealocation"
+			class="com.ivant.cms.action.admin.OSSShippingLocationAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<interceptor-ref name="basicRetrieve" />
+			<result name="success">/WEB-INF/jsp/admin/location.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="savelocation" method="save"
+			class="com.ivant.cms.action.admin.OSSShippingLocationAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">arealocation</param>
+				<param name="parse">true</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<action name="editlocation" method="edit"
+			class="com.ivant.cms.action.admin.OSSShippingLocationAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/singlelocation.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="parse">true</param>
+			</result>
+		</action>
+
+		<action name="deletelocation" method="delete"
+			class="com.ivant.cms.action.admin.OSSShippingLocationAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">arealocation</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">arealocation</param>
+				<param name="evt">deleteFailed</param>
+			</result>
+		</action>
+
+		<!-- order detail -->
+		<action name="orderdetail" class="com.ivant.cms.action.admin.OrderDetailAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<interceptor-ref name="basicRetrieve" />
+			<result name="success">/WEB-INF/jsp/admin/orderdetail.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<!-- product statistics -->
+		<action name="trustproductstatistics"
+			class="com.ivant.cms.action.admin.TrustProductStatisticsAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<interceptor-ref name="basicRetrieve" />
+			<result name="success">/WEB-INF/jsp/admin/trustproductstatistics.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="deletetrustproductstatistics" method="delete"
+			class="com.ivant.cms.action.admin.TrustProductStatisticsAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">trustproductstatistics</param>
+				<param name="evt">delete</param>
+			</result>
+		</action>
+		<action name="savetrustproductstatistics" method="save"
+			class="com.ivant.cms.action.admin.TrustProductStatisticsAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">trustproductstatistics</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">trustproductstatistics</param>
+				<param name="evt">pageexist</param>
+			</result>
+			<result name="input">/WEB-INF/jsp/admin/trustproductstatistics.jsp
+			</result>
+		</action>
+		<action name="addtrustproductstatistics" method="addTrustProducts"
+			class="com.ivant.cms.action.admin.TrustProductStatisticsAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">trustproductstatistics</param>
+				<param name="evt">add</param>
+			</result>
+		</action>
+
+		<action name="addForeignExchangeStatistics" method="addForeignExchange"
+			class="com.ivant.cms.action.admin.TrustProductStatisticsAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">trustproductstatistics</param>
+				<param name="evt">add</param>
+			</result>
+		</action>
+
+
+
+		<!-- wishlist -->
+		<action name="wishlist" class="com.ivant.cms.action.admin.WishlistAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<interceptor-ref name="basicRetrieve" />
+			<result name="success">/WEB-INF/jsp/admin/wishlist.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="deleteMessage" class="com.ivant.cms.action.admin.BulletinAction"
+			method="deleteMessage">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">bulletin</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<!-- contact us -->
+
+		<action name="editcontactus" method="edit"
+			class="com.ivant.cms.action.admin.ContactUsAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success">/WEB-INF/jsp/admin/contactus.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="savecontactus" method="save"
+			class="com.ivant.cms.action.admin.ContactUsAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success">/WEB-INF/jsp/admin/contactus.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<!--  multi page / dynamic page -->
+		<action name="multipage" class="com.ivant.cms.action.admin.ListMultiPageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+<!-- 			<interceptor-ref name="adminstack" /> -->
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/multipage.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="addmultipage" class="com.ivant.cms.action.admin.ListMultiPageAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">multipage</param>
+				<param name="evt">add</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="savemultipage" method="save"
+			class="com.ivant.cms.action.admin.MultiPageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+<!-- 			<interceptor-ref name="adminstack" /> -->
+			<result name="success" type="redirectAction">
+				<param name="actionName">multipage</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">multipage</param>
+				<param name="evt">pageexist</param>
+			</result>
+		</action>
+
+		<action name="updatemultipage" method="save"
+			class="com.ivant.cms.action.admin.MultiPageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">multipage</param>
+				<param name="evt">update</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="savemultipage2" method="save"
+			class="com.ivant.cms.action.admin.MultiPageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editmultipagechildlist</param>
+				<param name="multipage_id">${multiPage.id}</param>
+				<param name="evt">update</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="deletemultipage" method="delete"
+			class="com.ivant.cms.action.admin.MultiPageAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">multipage</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+
+		<action name="editmultipagechildlist" method="editChild"
+			class="com.ivant.cms.action.admin.MultiPageAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/editmultipagechild.jsp
+			</result>
+			<result name="hpdsked-schedule">
+				/WEB-INF/jsp/admin/editmultipagechild-hpdsked.jsp</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="addmultipageitem" method="save"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editmultipagechildlist</param>
+				<param name="multipage_id">${singlePage.parent.id}</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">editmultipagechildlist</param>
+				<param name="multipage_id">${singlePage.parent.id}</param>
+				<param name="evt">addfailed</param>
+			</result>
+		</action>
+
+		<action name="editmultipagechild" method="edit"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success">/WEB-INF/jsp/admin/editsinglepage.jsp
+			</result>
+		</action>
+
+		<action name="savemultipagechild" method="save"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editmultipagechildlist</param>
+				<param name="multipage_id">${multiPage.id}</param>
+			</result>
+		</action>
+
+		<action name="updatemultipagechild" method="save"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editmultipagechildlist</param>
+				<param name="multipage_id">${multiPage.id}</param>
+				<param name="evt">updatechild</param>
+			</result>
+		</action>
+
+		<action name="deletemultipagechild" method="delete"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editmultipagechildlist</param>
+				<param name="multipage_id">${multiPage.id}</param>
+				<param name="evt">deletechild</param>
+			</result>
+		</action>
+
+		<action name="editmultipage" method="edit"
+			class="com.ivant.cms.action.admin.MultiPageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editmultipage.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">multipage</param>
+			</result>
+		</action>
+
+		<action name="editmultipage2" method="edit"
+			class="com.ivant.cms.action.admin.MultiPageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editmultipage2.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">editmultipagechildlist</param>
+				<param name="multipage_id">${multiPage.id}</param>
+			</result>
+		</action>
+
+		<action name="uploadmultipageitemimage" method="uploadImage"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+				<param name="multipage_id">${multiPage.id}</param>
+			</result>
+		</action>
+
+		<action name="uploadmultipageitemfile" method="uploadMultiPageFile"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editsinglepage</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+				<param name="multipage_id">${multiPage.id}</param>
+			</result>
+		</action>
+
+		<action name="deletemultipagechildimage" method="deleteImage"
+			class="com.ivant.cms.action.admin.SinglePageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editmultipagechild</param>
+				<param name="multipage_id">${multiPage.id}</param>
+				<param name="singlepage_id">${singlePage.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">singlepage</param>
+			</result>
+		</action>
+
+		<action name="uploadmultipageimage" method="uploadImage"
+			class="com.ivant.cms.action.admin.MultiPageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editmultipage2</param>
+				<param name="multipage_id">${multiPage.id}</param>
+				<param name="evt">update</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">multipage</param>
+			</result>
+		</action>
+
+		<action name="deletemultipageimage" method="deleteImage"
+			class="com.ivant.cms.action.admin.MultiPageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editmultipage2</param>
+				<param name="multipage_id">${multiPage.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">multipage</param>
+			</result>
+		</action>
+
+		<action name="sortmultipageitem" class="com.ivant.cms.action.admin.SortMultiPageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/sortmultipageitem.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">editmultipagechildlist</param>
+				<param name="multipage_id">${multiPage.id}</param>
+			</result>
+		</action>
+
+
+		<!--  categories -->
+		<action name="category" class="com.ivant.cms.action.admin.ListCategoryAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/category.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="savecategory" method="save"
+			class="com.ivant.cms.action.admin.CategoryAction">
+<!-- 			<interceptor-ref name="adminstack" /> -->
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">category</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">category</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+
+		<action name="updatecategory" method="save"
+			class="com.ivant.cms.action.admin.CategoryAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">category</param>
+				<param name="group_id">${group.id}</param>
+				<!-- <param name="evt">update</param>   -->
+			</result>
+		</action>
+
+		<action name="deletecategory" method="delete"
+			class="com.ivant.cms.action.admin.CategoryAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">category</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">delete</param>
+			</result>
+		</action>
+
+		<action name="editcategory" method="edit"
+			class="com.ivant.cms.action.admin.CategoryAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editcategory.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">category</param>
+			</result>
+		</action>
+
+
+		<action name="sortItems" method="sort"
+			class="com.ivant.cms.action.admin.ListItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/sort_items.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">category</param>
+			</result>
+		</action>
+
+		<action name="updateItemSorting" method="update"
+			class="com.ivant.cms.action.admin.ListItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">category</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">sort</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">login</param>
+			</result>
+			<result name="none" type="redirectAction">
+				<param name="actionName">category</param>
+				<param name="evt">noItem</param>
+			</result>
+		</action>
+
+
+
+
+		<action name="uploadcategoryimage" method="uploadImage"
+			class="com.ivant.cms.action.admin.CategoryAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editcategory</param>
+				<param name="group_id">${group.id}</param>
+				<param name="category_id">${category.id}</param>
+			</result>
+		</action>
+
+
+		<action name="deletecategoryimage" method="deleteImage"
+			class="com.ivant.cms.action.admin.CategoryAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editcategory</param>
+				<param name="group_id">${group.id}</param>
+				<param name="category_id">${category.id}</param>
+			</result>
+
+
+			<result name="error" type="redirectAction">
+				<param name="actionName">category</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+		</action>
+		
+		<action name="uploadcategoryfile" method="uploadFile"
+			class="com.ivant.cms.action.admin.CategoryAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editcategory</param>
+				<param name="group_id">${group.id}</param>
+				<param name="category_id">${category.id}</param>
+			</result>
+		</action>
+		
+		<action name="deletecategoryfile" method="deleteFile"
+			class="com.ivant.cms.action.admin.CategoryAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editcategory</param>
+				<param name="group_id">${group.id}</param>
+				<param name="category_id">${category.id}</param>
+			</result>
+
+
+			<result name="error" type="redirectAction">
+				<param name="actionName">category</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+		</action>
+
+		<!-- item action -->
+		<action name="items" class="com.ivant.cms.action.admin.ListItemAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/items.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="saveitem" method="save"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+
+		<action name="saveuploaditem" method="saveUploadItem"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>		
+				<param name="message">${message}</param>	
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+				<param name="message">${message}</param>
+			</result>
+		</action>
+		
+		<action name="saveuploaditemimages" method="saveUploadItemImages"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>		
+				<param name="message">${message}</param>	
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+				<param name="message">${message}</param>
+			</result>
+		</action>
+
+		<action name="updateitem" method="save" class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+				<param name="category_id">${catId}</param>
+				<param name="pageNumber">${pageNumber}</param>
+				<param name="evt">update</param> 
+			</result>
+		</action>
+		
+		<action name="updateAvailableQuantity" method="updateAvailableQuantity" class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminstack" />
+			<result type="stream">
+				<param name="contentType">text/html</param>
+				<param name="inputName">inputStream</param>
+			</result>
+		</action>
+
+		<action name="deleteitem" method="delete"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+				<param name="pageNumber">${pageNumber}</param>
+				<param name="evt">delete</param>
+			</result>
+		</action>
+
+		<action name="edititem" method="edit"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success">/WEB-INF/jsp/admin/edititem.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">items</param>
+			</result>
+		</action>
+
+		<action name="deleteitemimage" method="deleteImage"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">edititem</param>
+				<param name="group_id">${group.id}</param>
+				<param name="item_id">${item.id}</param>
+				<param name="pageNumber">${pageNumber}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+		</action>
+
+		<action name="uploaditemimage" method="uploadImage"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">edititem</param>
+				<param name="group_id">${group.id}</param>
+				<param name="item_id">${item.id}</param>
+				<param name="pageNumber">${pageNumber}</param>
+			</result>
+		</action>
+
+		<action name="deleteitemimage" method="deleteImage"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">edititem</param>
+				<param name="group_id">${group.id}</param>
+				<param name="item_id">${item.id}</param>
+				<param name="pageNumber">${pageNumber}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+		</action>
+
+		<action name="deleteitemfile" method="deleteFile"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">edititem</param>
+				<param name="group_id">${group.id}</param>
+				<param name="item_id">${item.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+		</action>
+
+
+		<action name="uploaditemfile" method="uploadFile"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">edititem</param>
+				<param name="group_id">${group.id}</param>
+				<param name="item_id">${item.id}</param>
+			</result>
+		</action>
+
+
+		<action name="downloaditemfile" method="downloadFile"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="search" method="search"
+			class="com.ivant.cms.action.admin.ListItemAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/items.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="previewbatchupdateitems" method="previewBatchUpdate"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success">
+				/WEB-INF/jsp/admin/batchupdatepreview_categoryitems.jsp</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+				<param name="previewBatchUpdateStatus">failed</param>
+			</result>
+		</action>
+		<action name="batchupdateitems" method="batchUpdate"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+				<param name="batchUpdateStatus">success</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">items</param>
+				<param name="group_id">${group.id}</param>
+				<param name="batchUpdateStatus">failed</param>
+			</result>
+		</action>
+		<action name="batchupdateexcelfiles" method="displayUploadedExcels"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/batchupdate_excelfiles.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		<action name="downloadbatchupdateexcelfile" method="downloadExcelFile"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">${contentType}</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+
+		<!-- packages -->
+		<action name="packages" class="com.ivant.cms.action.admin.PackagesAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/packages.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		<action name="packages-*" method="{1}" class="com.ivant.cms.action.admin.PackagesAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="*">/WEB-INF/jsp/admin/packages.jsp
+			</result>
+		</action>
+		<action name="savepackage" method="save"
+			class="com.ivant.cms.action.admin.PackagesAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">packages</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">packages</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+		<action name="deletepackage" method="delete"
+			class="com.ivant.cms.action.admin.PackagesAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">packages</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">packages</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+		<action name="editpackage" method="edit"
+			class="com.ivant.cms.action.admin.PackagesAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/editpackage.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		<action name="updatepackage" method="update"
+			class="com.ivant.cms.action.admin.PackagesAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">packages</param>
+				<param name="evt">update</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">packages</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+
+		<!-- loadNewChatMessages -->
+		
+		
+		<!-- ChatMessage -->
+		
+		
+		
+		
+		
+		<!-- groups -->
+		<action name="groups" class="com.ivant.cms.action.admin.ListGroupAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/groups.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="addgroups" class="com.ivant.cms.action.admin.ListGroupAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">add</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="savegroup" method="save"
+			class="com.ivant.cms.action.admin.GroupAction">
+<!-- 			<interceptor-ref name="adminstack" /> -->
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+
+		<action name="updategroup" method="save"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">update</param>
+			</result>
+		</action>
+
+
+		<action name="deletegroup" method="delete"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">delete</param>
+			</result>
+		</action>
+
+		<action name="editgroup" method="edit"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editgroup.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">groups</param>
+			</result>
+		</action>
+
+
+		<action name="deletegroupimage" method="deleteImage"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editgroup</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+		</action>
+
+		<action name="uploadgroupimage" method="uploadImage"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editgroup</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+		</action>
+<!-- FLAG  -->
+		<action name="downloadgroupasexcel" method="downloadGroupDataAsExcel"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+	<action name="downloadsampleexcelfile" method="sampleExcelFile"
+			class="com.ivant.cms.action.admin.GroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+
+
+		<action name="sortCategories" method="sort"
+			class="com.ivant.cms.action.admin.ListCategoryAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/sort_categories.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">groups</param>
+			</result>
+		</action>
+
+		<action name="sortCategoryItems" method="sortCatItems"
+			class="com.ivant.cms.action.admin.ListCategoryAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/sort_category_items.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">items</param>
+			</result>
+		</action>
+
+		<action name="updateCategorySorting" method="update"
+			class="com.ivant.cms.action.admin.ListCategoryAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">sort</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">login</param>
+			</result>
+			<result name="none" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">noCategory</param>
+			</result>
+		</action>
+
+		<action name="updateCategoryItemSorting" method="updateItems"
+			class="com.ivant.cms.action.admin.ListCategoryAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">sortItems</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">login</param>
+			</result>
+			<result name="none" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">noCategory</param>
+			</result>
+		</action>
+
+		<action name="updateChildrenCategorySorting" method="updateChildrenCategories"
+			class="com.ivant.cms.action.admin.ListCategoryAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="evt">sortItems</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">login</param>
+			</result>
+			<result name="none" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">noCategory</param>
+			</result>
+		</action>
+
+		<action name="sortBrands" method="sort"
+			class="com.ivant.cms.action.admin.ListBrandAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/sort_brands.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">groups</param>
+			</result>
+		</action>
+
+		<action name="updateBrandSorting" method="update"
+			class="com.ivant.cms.action.admin.ListBrandAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">sortBrands</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">login</param>
+			</result>
+			<result name="none" type="redirectAction">
+				<param name="actionName">groups</param>
+				<param name="evt">noBrand</param>
+			</result>
+		</action>
+
+
+
+
+		<!-- forms action -->
+		<action name="forms" class="com.ivant.cms.action.admin.ListFormPageAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<interceptor-ref name="forms" />
+			<result name="success">/WEB-INF/jsp/admin/forms.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="addforms" class="com.ivant.cms.action.admin.ListFormPageAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<interceptor-ref name="forms" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">forms</param>
+				<param name="evt">add</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="saveform" method="save"
+			class="com.ivant.cms.action.admin.FormPageAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="forms" />
+			<result type="redirectAction">
+				<param name="actionName">forms</param>
+				<param name="evt">save</param>
+			</result>
+		</action>
+
+		<action name="deleteformpage" method="delete"
+			class="com.ivant.cms.action.admin.FormPageAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="forms" />
+			<result type="redirectAction">
+				<param name="actionName">forms</param>
+			</result>
+		</action>
+
+		<action name="editformpage" method="edit"
+			class="com.ivant.cms.action.admin.FormPageAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="forms" />
+			<result name="success">/WEB-INF/jsp/admin/editform.jsp
+			</result>
+		</action>
+
+		<action name="updateform" method="save"
+			class="com.ivant.cms.action.admin.FormPageAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="forms" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editformpage</param>
+				<param name="form_id">${formPage.id}</param>
+				<param name="evt">update</param>
+			</result>
+		</action>
+
+		<action name="uploadformimage" method="uploadImage"
+			class="com.ivant.cms.action.admin.FormPageAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editformpage</param>
+				<param name="form_id">${formPage.id}</param>
+			</result>
+		</action>
+
+		<action name="deleteformpageimage" method="deleteImage"
+			class="com.ivant.cms.action.admin.FormPageAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editformpage</param>
+				<param name="form_id">${formPage.id}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">forms</param>
+			</result>
+		</action>
+
+
+		<!-- settings -->
+		<action name="settings" class="com.ivant.cms.action.admin.SettingsAction">
+			<interceptor-ref name="adminstack" />
+			<result name="input">/WEB-INF/jsp/admin/settings.jsp
+			</result>
+		</action>
+
+		<action name="updateusersetting"
+			class="com.ivant.cms.action.admin.UserSettingsUpdateAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">settings</param>
+				<param name="evt">usersettingsupdated</param>
+			</result>
+		</action>
+
+		<action name="changeuserpassword"
+			class="com.ivant.cms.action.admin.UpdateUserPasswordAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">settings</param>
+				<param name="evt">passwordupdated</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">settings</param>
+				<param name="evt">passwordnotupdated</param>
+			</result>
+		</action>
+
+		<action name="updatecompanysettings"
+			class="com.ivant.cms.action.admin.CompanySettingsUpdateAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">settings</param>
+				<param name="evt">companysettingsupdated</param>
+			</result>
+		</action>
+
+
+		<!--  brands -->
+		<action name="brands" class="com.ivant.cms.action.admin.ListBrandAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/brands.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="savebrand" method="save"
+			class="com.ivant.cms.action.admin.BrandAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">brands</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">brands</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+
+		<action name="deletebrand" method="delete"
+			class="com.ivant.cms.action.admin.BrandAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">brands</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">brands</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">deleteFailed</param>
+			</result>
+		</action>
+
+		<action name="editbrand" method="edit"
+			class="com.ivant.cms.action.admin.BrandAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editbrand.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">brands</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+		</action>
+
+		<action name="updatebrand" method="save"
+			class="com.ivant.cms.action.admin.BrandAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">brands</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">update</param>
+			</result>
+		</action>
+
+		<action name="uploadbrandimage" method="uploadImage"
+			class="com.ivant.cms.action.admin.BrandAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editbrand</param>
+				<param name="group_id">${group.id}</param>
+				<param name="brand_id">${brand.id}</param>
+				<param name="evt">save</param>
+			</result>
+		</action>
+
+		<action name="deletebrandimage" method="deleteImage"
+			class="com.ivant.cms.action.admin.BrandAction">
+			<interceptor-ref name="adminstack" />
+			<result type="redirectAction">
+				<param name="actionName">editbrand</param>
+				<param name="brand_id">${brand.id}</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+		</action>
+
+		<action name="registration" class="com.ivant.cms.action.admin.ListRegistrantsAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/registration.jsp
+			</result>
+		</action>
+		
+
+		<action name="deleteregistrants" method="delete"
+			class="com.ivant.cms.action.registration.RegistrationActionController">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">registration</param>
+				<param name="evt">delete</param>
+			</result>
+		</action>
+
+		<action name="editregistrants" method="edit"
+			class="com.ivant.cms.action.admin.ListRegistrantsAction">
+			<interceptor-ref name="adminstack" />
+			<result>/WEB-INF/jsp/admin/editRegistration.jsp
+			</result>
+		</action>
+
+		<action name="submitRegistration"
+			class="com.ivant.cms.action.registration.RegistrationActionController">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editregistrantsTemplate</param>
+				<param name="submissionId">${memberId}</param>
+				<param name="evt">update</param>
+			</result>
+		</action>
+
+		<action name="editregistrantsTemplate" method="edit"
+			class="com.ivant.cms.action.admin.ListRegistrantsAction">
+			<interceptor-ref name="adminstack" />
+
+			<result name="success">
+				<param name="location">/WEB-INF/jsp/admin/registrationTemplate.jsp</param>
+			</result>
+		</action>
+
+		<action name="updateRegistrantStatus" method="updateStatus"
+			class="com.ivant.cms.action.registration.RegistrationActionController">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">registration</param>
+				<param name="evt">update</param>
+			</result>
+		</action>
+
+		<action name="updateRegistrantStatusNoEmail" method="updateStatusNoEmail"
+			class="com.ivant.cms.action.registration.RegistrationActionController">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">registration</param>
+				<param name="evt">update</param>
+			</result>
+		</action>
+
+		<action name="updateregistrants" method="update"
+			class="com.ivant.cms.action.registration.RegistrationActionController">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">editregistrantsTemplate</param>
+				<param name="submissionId">${submissionId}</param>
+				<param name="formPage">${formPage}</param>
+				<param name="year">${content}</param>
+				<param name="evt">update</param>
+			</result>
+		</action>
+
+		<action name="deletemultipleregistrants" method="deleteMultiple"
+			class="com.ivant.cms.action.registration.RegistrationActionController">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">registration</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">registration</param>
+				<param name="evt">error</param>
+			</result>
+		</action>
+
+		<!-- item comment action -->
+		<action name="comment" class="com.ivant.cms.action.admin.ItemCommentAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/comments.jsp
+			</result>
+		</action>
+		
+
+		<action name="deletecomment" method="delete"
+			class="com.ivant.cms.action.admin.ItemCommentAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">comment</param>
+				<param name="commentType">${commentType}</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">comment</param>
+				<param name="commentType">${commentType}</param>
+				<param name="evt">error</param>
+			</result>
+		</action>
+
+		<action name="deletemultiplecomments" method="deleteMultiple"
+			class="com.ivant.cms.action.admin.ItemCommentAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">comment</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">comment</param>
+				<param name="evt">error</param>
+			</result>
+		</action>
+
+		<!-- form submission -->
+		<action name="formsubmissions"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/formsubmissions.jsp
+			</result>
+		</action>
+		
+		<action name="reservations"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/reservations.jsp
+			</result>
+		</action>
+		
+		<action name="registrations"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result>/WEB-INF/jsp/admin/registrations.jsp
+			</result>
+		</action>
+
+		<action name="approvesubmission" method="approve"
+			class="com.ivant.cms.action.admin.FormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">formsubmissions</param>
+				<param name="evt">approve</param>
+			</result>
+		</action>
+
+		<action name="deletesubmission" method="delete"
+			class="com.ivant.cms.action.admin.FormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">formsubmissions</param>
+				<param name="evt">delete</param>
+			</result>
+		</action>
+		
+		<action name="deleteraffleentry" method="delete"
+			class="com.ivant.cms.action.admin.FormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">skechersraffle</param>
+				<param name="evt">delete</param>
+			</result>
+		</action>
+		
+		<!--  -->
+		
+		<action name="deleteraffleentry" method="delete"
+			class="com.ivant.cms.action.admin.FormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">bluewarnerraffle</param>
+				<param name="evt">delete</param>
+			</result>
+		</action>
+		
+		<!--  -->
+
+		<action name="deletemultiplesubmissions" method="deleteMultiple"
+			class="com.ivant.cms.action.admin.FormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">formsubmissions</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">formsubmissions</param>
+				<param name="evt">error</param>
+			</result>
+		</action>
+		
+		<action name="deletemultipleraffleentry" method="deleteMultiple"
+			class="com.ivant.cms.action.admin.FormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">skechersraffle</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">skechersraffle</param>
+				<param name="evt">error</param>
+			</result>
+		</action>
+		
+		<!--  -->
+		
+		<action name="deletemultipleraffleentry" method="deleteMultiple"
+			class="com.ivant.cms.action.admin.FormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">bluewarnerraffle</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">bluewarnerraffle</param>
+				<param name="evt">error</param>
+			</result>
+		</action>
+		
+		<!--  -->
+
+		<action name="downloadSubmissionPDF" method="downloadEmailPDF"
+			class="com.ivant.cms.action.admin.FormSubmissionAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="jasper">
+				<param name="location">/companies/hbc/jasper-report/sample-bean-source.jasper</param>
+				<param name="dataSource">datasource</param>
+				<param name="contentDisposition">disposition</param>
+				<param name="documentName">${docName}</param>
+				<param name="format">PDF</param>
+			</result>
+		</action>
+		
+		<action name="downloadsubmission" method="downloadEmails"
+			class="com.ivant.cms.action.admin.ListFormSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadRegistrants" method="downloadRegistrants"
+			class="com.ivant.cms.action.admin.ListRegistrantsAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">registration</param>
+				<param name="evt">errordownload</param>
+			</result>
+		</action>
+
+		<action name="downloadRegistrantsIave" method="downloadRegistrantsIave"
+			class="com.ivant.cms.action.admin.ListRegistrantsAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">registration</param>
+				<param name="evt">errordownload</param>
+			</result>
+		</action>
+
+		<action name="downloadRegistrantsSummaryIave" method="downloadRegistrantsSummaryIave"
+			class="com.ivant.cms.action.admin.ListRegistrantsAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">registration</param>
+				<param name="evt">errordownload</param>
+			</result>
+		</action>
+
+		<action name="downloadRegistrantFormsIave" method="downloadRegistrantFormsIave"
+			class="com.ivant.cms.action.admin.ListRegistrantsAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadSurveySummaryIave" method="downloadSurveySummaryIave"
+			class="com.ivant.cms.action.admin.ListRegistrantsAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadmembers" method="downloadDetails"
+			class="com.ivant.cms.action.admin.ListMembersSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadCustomDetails" method="downloadCustomDetails"
+			class="com.ivant.cms.action.admin.ListMembersSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="downloadGurkkaDetails" method="downloadGurkkaDetails" class="com.ivant.cms.action.admin.ListMembersSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		
+		<action name="downloadWatsonMemberDetails" method="downloadWatsonMemberDetails"
+			class="com.ivant.cms.action.admin.ListMembersSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="downloadWatsonKiddieMemberDetails" method="downloadWatsonKiddieMemberDetails"
+			class="com.ivant.cms.action.admin.ListMembersSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="downloadWatsonAAAMemberDetails" method="downloadWatsonAAAMemberDetails"
+			class="com.ivant.cms.action.admin.ListMembersSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>		
+		
+		<action name="downloadWatsonGlamMemberDetails" method="downloadWatsonGlamMemberDetails"
+			class="com.ivant.cms.action.admin.ListMembersSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>		
+		
+		<action name="downloadWatsonStyleMemberDetails" method="downloadWatsonStyleMemberDetails"
+			class="com.ivant.cms.action.admin.ListMembersSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+			  	<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>	
+		
+		<action name="downloadWatsonSUSDMemberDetails" method="downloadWatsonSUSDMemberDetails"
+			class="com.ivant.cms.action.admin.ListMembersSubmissionAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+			  	<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadSalesForRewardsProgram" method="downloadSalesReportBasedFromUploadedReceipts"
+			class="com.ivant.cms.action.admin.ListMemberFileItems">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadOrderList" method="downloadOrderList"
+			class="com.ivant.cms.action.admin.ListOrders">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadAllOrderList" method="downloadAllOrderList"
+			class="com.ivant.cms.action.admin.ListOrders">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadOrderExcel" method="downloadOrderExcel"
+			class="com.ivant.cms.action.admin.ListOrders">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="downloadPortalActivityLogExcel" method="downloadPortalActivityLogExcel"
+			class="com.ivant.cms.action.admin.LogsAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="downloadHiPreOnlineStoreOrderExcel" method="downloadHiPreOnlineStoreOrderExcel"
+			class="com.ivant.cms.action.admin.ListOrders">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="downloadAdeventsRegistrationExcel" method="downloadAdeventsRegistrationExcel"
+			class="com.ivant.cms.action.admin.ListOrders">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadItemsExcel" method="downloadItemsExcel"
+			class="com.ivant.cms.action.admin.ListItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="downloadAllItemsExcel" method="downloadAllItemsExcel"
+			class="com.ivant.cms.action.admin.ListItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="downloadEnabledItemsExcel" method="downloadEnabledItemsExcel"
+			class="com.ivant.cms.action.admin.ListItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="downloadDisabledItemsExcel" method="downloadDisabledItemsExcel"
+			class="com.ivant.cms.action.admin.ListItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadmemberfileitems" method="downloadDetails"
+			class="com.ivant.cms.action.admin.ListMemberFileItems">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<action name="downloadmemberfileitems_receipts" method="downloadMemberFileReceipts"
+			class="com.ivant.cms.action.admin.ListMemberFileItems">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+
+		<!--  eventGroups -->
+		<action name="eventgroups" class="com.ivant.cms.action.admin.ListEventGroupAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/eventgroups.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="saveeventgroup" method="save"
+			class="com.ivant.cms.action.admin.EventGroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">eventgroups</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">eventgroups</param>
+				<param name="evt">saveFailed</param>
+			</result>
+		</action>
+		<action name="deleteeventgroup" method="delete"
+			class="com.ivant.cms.action.admin.EventGroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">eventgroups</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">eventgroups</param>
+				<param name="evt">deleteFailed</param>
+			</result>
+		</action>
+
+		<action name="editeventgroup" method="edit"
+			class="com.ivant.cms.action.admin.EventGroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editeventgroup.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">eventgroups</param>
+			</result>
+		</action>
+
+		<action name="updateeventgroup" method="save"
+			class="com.ivant.cms.action.admin.EventGroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">eventgroups</param>
+				<param name="evt">update</param>
+			</result>
+		</action>
+
+
+		<!-- events -->
+		<action name="events" class="com.ivant.cms.action.admin.ListEventAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/events.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="saveevent" method="save"
+			class="com.ivant.cms.action.admin.EventAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">events</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">events</param>
+				<param name="evt">saveFailed</param>
+			</result>
+		</action>
+
+		<action name="deleteevent" method="delete"
+			class="com.ivant.cms.action.admin.EventAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">events</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">events</param>
+				<param name="evt">deleteFailed</param>
+			</result>
+		</action>
+
+		<action name="editevent" method="edit"
+			class="com.ivant.cms.action.admin.EventAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editevent.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">events</param>
+			</result>
+		</action>
+
+		<action name="updateevent" method="save"
+			class="com.ivant.cms.action.admin.EventAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">events</param>
+				<param name="evt">update</param>
+			</result>
+		</action>
+
+		<!-- variations group -->
+		<action name="variationGroup" class="com.ivant.cms.action.admin.VariationGroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/variationGroup.jsp
+			</result>
+		</action>
+
+		<action name="saveVariationGroup" method="save"
+			class="com.ivant.cms.action.admin.VariationGroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">variationGroup</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">variationGroup</param>
+			</result>
+		</action>
+
+		<action name="deleteVariationGroup" method="delete"
+			class="com.ivant.cms.action.admin.VariationGroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">variationGroup</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">variationGroup</param>
+			</result>
+		</action>
+
+		<action name="editVariationGroup" method="edit"
+			class="com.ivant.cms.action.admin.VariationGroupAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editVariationGroup.jsp
+			</result>
+		</action>
+
+		<!-- variation -->
+		<action name="variation" class="com.ivant.cms.action.admin.VariationAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/variation.jsp
+			</result>
+		</action>
+
+		<action name="saveVariation" method="save"
+			class="com.ivant.cms.action.admin.VariationAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">variation</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">variation</param>
+			</result>
+		</action>
+
+		<action name="deleteVariation" method="delete"
+			class="com.ivant.cms.action.admin.VariationAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">variation</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">variation</param>
+			</result>
+		</action>
+
+		<action name="editVariation" method="edit"
+			class="com.ivant.cms.action.admin.VariationAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editVariation.jsp
+			</result>
+		</action>
+
+		<action name="*">
+			<result type="httpheader">404</result>
+		</action>
+
+
+		<action name="editorderitem" class="com.ivant.cms.action.admin.OrderAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success">/WEB-INF/jsp/admin/editOrder.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">order</param>
+			</result>
+		</action>
+
+		<action name="editOrder" class="com.ivant.cart.action.OrderAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/order.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<!-- attributes -->
+		<action name="attributes" class="com.ivant.cms.action.admin.ListAttributeAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/attributes.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="saveattribute" method="save"
+			class="com.ivant.cms.action.admin.AttributeAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">attributes</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">save</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">attributes</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">${errorType}</param>
+			</result>
+		</action>
+
+		<action name="deleteattribute" method="delete"
+			class="com.ivant.cms.action.admin.AttributeAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">attributes</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">delete</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">attributes</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">deleteFailed</param>
+			</result>
+		</action>
+
+		<action name="editattribute" method="edit"
+			class="com.ivant.cms.action.admin.AttributeAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/editattribute.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">attributes</param>
+				<param name="group_id">${group.id}</param>
+			</result>
+		</action>
+
+		<action name="updateattribute" method="save"
+			class="com.ivant.cms.action.admin.AttributeAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">attributes</param>
+				<param name="group_id">${group.id}</param>
+				<param name="evt">update</param>
+			</result>
+		</action>
+
+		<action name="manageAttributes" method="none"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/manageAttributes.jsp
+			</result>
+		</action>
+
+		<action name="saveManagedAttributes" method="saveManaged"
+			class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">edititem</param>
+				<param name="group_id">${group.id}</param>
+				<param name="item_id">${item.id}</param>
+			</result>
+		</action>
+
+
+		<action name="referrals" class="com.ivant.cms.action.admin.ReferralAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/referrals.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+
+		<action name="updateReferralStatus" method="updateStatus"
+			class="com.ivant.cms.action.admin.ReferralAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/referrals.jsp
+			</result>
+		</action>
+
+		<action name="updateReferralRequestedStatus" method="updateRequestedStatus"
+			class="com.ivant.cms.action.admin.ReferralAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<interceptor-ref name="paging"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/referrals.jsp
+			</result>
+		</action>
+
+		<action name="downloadReferrals" method="downloadDetails"
+			class="com.ivant.cms.action.admin.ListReferralAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/vnd.ms-excel</param>
+				<param name="inputName">fInStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<action name="uploadlogo" method="saveLogo"
+			class="com.ivant.cms.action.admin.DashboardAction">
+			<interceptor-ref name="adminfileuploadstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+				<param name="evt">logouploaded</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+		
+		<action name="validateemail" method="validate" class="com.ivant.cms.action.admin.EmailValidateAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/validateemail.jsp
+			</result>
+		<!--	<result name="success" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result> -->
+		</action>
+		
+		<action name="emailvalidation"
+			class="com.ivant.cms.action.admin.EmailValidateAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">validateemail</param>
+				<param name="evt">validatedsuccessfully</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">validateemail</param>
+			</result>
+		</action>
+		
+		<!-- ADMIN CHAT -->
+		
+		<action name="chat" class="com.ivant.cms.action.admin.ChatAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/chat.jsp
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+
+		<action name="chatadminlog" class="com.ivant.cms.action.admin.ChatAction" method="adminLog">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success"></result>
+		</action>
+
+		<action name="chatredistadmin" class="com.ivant.cms.action.admin.ChatAction" method="redistAdmin">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success"></result>
+		</action>
+		
+		<action name="chatreceiver" class="com.ivant.cms.action.admin.ChatAction" method="receiver">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="stream">
+				<param name="contentType">text/html</param>
+				<param name="inputName">fileInputStream</param>
+				<param name="contentDisposition">attachment;filename="fileABC.txt"</param>
+				<!-- <param name="bufferSize">1024</param> -->
+			</result>
+		</action>
+		
+		<action name="viewstafflog" class="com.ivant.cms.action.admin.ChatAction" method="viewLog">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="stream">
+				<param name="contentType">text/html</param>
+				<param name="inputName">fileInputStream</param>
+				<param name="contentDisposition">attachment;filename="fileABC.txt"</param>
+				<!-- <param name="bufferSize">1024</param> -->
+			</result>
+		</action>
+		<action name="chatqueuereader" class="com.ivant.cms.action.admin.ChatAction" method="queueReader">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="stream">
+				<param name="contentType">text/plain</param>
+				<param name="inputName">fileInputStream</param>
+				<param name="contentDisposition">attachment;filename="fileCBA.txt"</param>
+				<!-- <param name="bufferSize">1024</param> -->
+			</result>
+		</action>
+		<action name="chatsendadmin" class="com.ivant.cms.action.admin.ChatAction" method="senderAdmin">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success"></result>
+		</action>
+		<action name="chatgettime" method="getTimeStamp" class="com.ivant.cms.action.ChatAction">
+	 		<interceptor-ref name="adminstack" />
+	 		<result name="success" type="stream">
+	 			<param name="contentType">text/plain</param>
+	 			<param name="inputName">fileInputStream</param>
+	 			<param name="contentDisposition">attachment;filename="chat.txt"</param>
+	 		</result>
+		</action>
+		<action name="getallusers" class="com.ivant.cms.action.admin.ChatAction" method="getAllUser">
+			<interceptor-ref name="adminstack" ></interceptor-ref>
+			<result name="success" type="stream">
+				<param name="contentType">text/plain</param>
+	 			<param name="inputName">fileInputStream</param>
+	 			<param name="contentDisposition">attachment;filename="chat.txt"</param>
+			</result>
+		</action>
+		<action name="initialreader" class="com.ivant.cms.action.admin.ChatAction" method="initialQueueReader">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="stream">
+				<param name="contentType">text/plain</param>
+				<param name="inputName">fileInputStream</param>
+				<param name="contentDisposition">attachment;filename="fileCBA.txt"</param>
+			</result>
+		</action>
+		<action name="chatadminclient" class="com.ivant.cms.action.admin.ChatAction" method="adminWriteClients">
+			<interceptor-ref name="adminstack" ></interceptor-ref>
+			<result name="success"></result>
+		</action>
+		<action name="logoutadmin" class="com.ivant.cms.action.admin.ChatAction" method="logoutAdmin">
+			<interceptor-ref name="adminstack" ></interceptor-ref>
+			<result type="redirectAction">
+				<param name="actionName">logout</param>
+			</result>
+		</action>
+		<action name="logoutchat" class="com.ivant.cms.action.admin.ChatAction" method="logoutChat">
+			<interceptor-ref name="adminstack" ></interceptor-ref>
+			<result name="success"></result>
+		</action>
+		<action name="chatreset" class="com.ivant.cms.action.admin.ChatAction" method="resetChat">
+			<interceptor-ref name="adminstack" ></interceptor-ref>
+			<result name="success"></result>
+		</action>
+		<!-- END ADMIN CHAT -->
+		<!-- Normal User -->
+		<action name="chatboard" class="com.ivant.cms.action.admin.ChatAction">
+			<interceptor-ref name="adminstack" ></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/chatboard.jsp</result>
+		</action>
+		<!-- Normal User -->
+		
+		<!-- <action name="synchronizedatabase" class="com.ivant.cms.action.admin.SynchronizeDatabaseAction">
+			<interceptor-ref name="adminstack" ></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/synchronizedatabase.jsp</result>
+		</action> -->
+		
+		<action name="remoteSaveCategoryItem" method="remoteSaveService" class="com.ivant.cms.action.admin.CategoryItemAction">
+			<interceptor-ref name="hibernate" ></interceptor-ref>
+			<interceptor-ref name="company" ></interceptor-ref>
+			<interceptor-ref name="params" ></interceptor-ref>
+			<interceptor-ref name="basicStack" ></interceptor-ref>
+			<result name="success">/WEB-INF/jsp/admin/synchronizedatabase.jsp</result>
+		</action>
+		
+		<action name="kuysenQuotations" class="com.ivant.cms.action.admin.KuysenSalesQuotationAction">
+			<interceptor-ref name="adminstack" />
+			<interceptor-ref name="paging" />
+			<result name="success">/WEB-INF/jsp/admin/quotations.jsp</result>
+		</action>
+		
+		<action name="delete-quote" class="com.ivant.cms.action.admin.KuysenSalesQuotationAction" method="deleteQuote">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="redirectAction">
+				<param name="actionName">kuysenQuotations</param>
+			</result>
+		</action>
+		
+		<action name="generate-quote" class="com.ivant.cms.action.admin.KuysenSalesQuotationAction" method="generateQuote">
+        	<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/pdf</param>
+				<param name="contentDisposition">attachment; filename="${filename}"</param>
+				<param name="inputName">inputStream</param>
+				<param name="contentLength">${fileSize}</param>
+				<param name="bufferSize">1024</param>
+			</result>
+		</action>
+		
+		<action name="createBoysenAppDB" method="createBoysenAppDB"
+		    class="com.ivant.cms.action.admin.DatabaseAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success">/WEB-INF/jsp/admin/dashboard.jsp</result>
+		</action>	
+		
+		<action name="downloadBoysenAppDB" method="downloadBoysenAppDB"
+			class="com.ivant.cms.action.admin.DatabaseAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/zip</param>
+			  	<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		<!-- dutch boy download db zip -->
+		<action name="downloadDutchboyAppDB" method="downloadDutchboyAppDB"
+			class="com.ivant.cms.action.admin.DatabaseAction">
+			<interceptor-ref name="adminstack" />
+			<result name="success" type="stream">
+				<param name="contentType">application/zip</param>
+			  	<param name="inputName">inputStream</param>
+				<param name="contentDisposition">attachment;filename="${fileName}"</param>
+				<param name="contentLength">${contentLength}</param>
+			</result>
+		</action>
+		
+		<!-- AGIAN UPLOAD MEMBER BY BATCH -->
+		<action name="uploadMemberByBatch" method="uploadMemberByBatch"
+			class="com.ivant.cms.action.admin.MemberAction">
+			<interceptor-ref name="adminstack"></interceptor-ref>
+			<result name="success" type="redirectAction">
+				<param name="actionName">members</param>
+				<param name="uploadstatus">${notificationMessage }</param>
+				<param name="rowRead">${numberOfRowRead }</param>
+				<param name="insertSuccess">${numberOfInsertedItem }</param>
+				<param name="ignoreRow">${numberOfIgnoreItem }</param>
+			</result>
+			<result name="error" type="redirectAction">
+				<param name="actionName">dashboard</param>
+			</result>
+		</action>
+			
+	</package>
+
+</struts>

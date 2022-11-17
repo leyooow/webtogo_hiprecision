@@ -1,0 +1,1 @@
+<jsp:forward page="/companies/hpds/online-search.do"></jsp:forward>

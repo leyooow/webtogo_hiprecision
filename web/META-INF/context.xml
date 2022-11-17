@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+
+	<Resource name="jdbc/datasource" auth="Container" type="javax.sql.DataSource"
+               maxActive="100" maxIdle="30" maxWait="10000"
+               username="root" password="root" driverClassName="com.mysql.jdbc.Driver"
+              url="jdbc:mysql://localhost:3306/labtestpreparation_staging2?autoReconnect=true&amp;zeroDateTimeBehavior=convertToNull"
+  />
+
+ 
+<!--    	<Resource name="jdbc/datasource" auth="Container" type="javax.sql.DataSource"
+               maxActive="100" maxIdle="30" maxWait="10000"
+               username="administrator" password="hiprecision2015" driverClassName="com.mysql.jdbc.Driver"
+              url="jdbc:mysql://login-server.cykced6hetct.ap-southeast-1.rds.amazonaws.com:3306/labtestpreparation_staging4?autoReconnect=true&amp;zeroDateTimeBehavior=convertToNull"
+  	/> -->  
+</Context>

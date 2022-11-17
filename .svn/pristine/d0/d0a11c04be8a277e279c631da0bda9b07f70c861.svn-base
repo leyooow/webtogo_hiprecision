@@ -1,0 +1,322 @@
+/**
+ * current_online_clients - an array of currently online client assigned
+ * 		to the admin.
+ * temp_online - a temporary array containing the list of current clients.
+ * current_client - the admin's currently conversing with.
+ * reload - a flag if the admin just refreshed the page.
+ */
+var current_online_clients = new Array();
+var temp_online = new Array();
+var current_client = "";
+var reload = 0;
+var chattinglog = "";
+
+var chatsoundURL = "../javascripts/chat/sound/newmsg.ogg";
+
+window.onload = loadPage();
+
+function loadPage() {
+	reload = checkRefresh();
+	prepareForRefresh();
+	setInterval("readChatQueue()", 6000);
+	setInterval("updateConversation()", 5000);
+	
+	$.post("chatadminlog.do", {admin_status :"online", staff_id :staff_id+"-"+chatuser, status :"0"});
+
+	if (reload == 1) {
+		for ( var i = 0; i < temp_online.length; i++) {
+
+			var temp2 = new Array();
+			temp2 = $.trim(temp_online[i]).split("=");
+
+			if ($.trim(temp_online[i]) != "") {
+				//current_online_clients[$.trim(temp_online[i])] = $.trim(temp_online[i]);
+				current_online_clients[$.trim(temp2[0])] = $.trim(temp2[0]);
+				addnew(temp2[0], temp2[1]);
+			}
+		}
+	}
+}
+
+$(window).unload( function() {
+	prepareForRefresh();
+	$.post("chatredistadmin.do", {staff_id :staff_id+"-"+chatuser, status :"offline", boo:"boooo----------------------------------------------"});
+});
+
+/**
+ * Updates the current chat log of the admin with the current client.
+ * If the receiver returns 0 it means that the user is offline.
+ */
+function updateConversation() {
+	var cht = document.getElementById('chatText');
+	if (current_client != "") {
+		$.post("chatreceiver.do",
+		{
+			u_id :current_client,
+			company :chatcompanyname
+		},
+		function(data) {
+			if ($.trim(data.toString()) != "0"){
+				if($.trim(data.toString()) != chattinglog){
+					chattinglog = $.trim(data.toString())
+					$("#chatText").html(chattinglog);
+				}
+			}
+			else
+				$("#chatText").html("<p class='message'><em>*The user is now offline.</em></p>");
+			cht.scrollTop = cht.scrollHeight;
+		});
+	}
+}
+
+/**
+ * Reads the chat queue of the admin. If there are any new clients the system
+ * adds them to the array of currently online clients.
+ */
+function readChatQueue() {
+	// try implementing ng hindi na binubura ung laman ng chat_queueu baka kasi
+	// maclose ng admin ung chat ng hindi pa nya nababasa ung message, mahirap
+	// backtrack ung message
+
+	$.post("chatqueuereader.do",{staff_id :staff_id+"-"+chatuser},
+	function(data) {
+		var temp = new Array();
+		temp = data.split("||");
+
+		for (i = 0; i < temp.length - 1; i++) {
+			var temp2 = new Array();
+			temp2 = $.trim(temp[i]).split("=");
+			//if (typeof (current_online_clients[$.trim(temp[i])]) == "undefined") {
+			if (typeof(current_online_clients[$.trim(temp2[0])]) == "undefined") {
+				current_online_clients[$.trim(temp2[0])] = $.trim(temp2[0]);
+				//current_online_clients[$.trim(temp[i])] = $.trim(temp[i]);
+				addnew(temp2[0], temp2[1]);
+				// alert(current_online_clients[temp[i]]);
+				// single update, try reload everytime
+			} else {
+				if(current_client != $.trim(temp2[0]))
+					$("#" + $.trim(temp2[0])).removeAttr('class');
+				if($.trim(temp2[1])!=""){
+					document.getElementById($.trim(temp2[0])).innerHTML = "<a onclick=\"set_conversation('"
+						+ $.trim(temp2[0]) + "',this) \"/>"
+						+ "<img src='../javascripts/chat/image/iChat.gif' align=\"absmiddle\"/>"
+						+ $.trim(temp2[1])
+						+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>"
+						+ "<img src='../javascripts/chat/image/iClose.gif' onclick='remove(this)' title='"
+						+ $.trim(temp2[0]) + "=" + $.trim(temp2[1])
+						+ "' style='cursor:pointer;'align=\"absmiddle\"/>";
+				}
+				//alert(temp2[0]+"----"+temp2[1]);
+			}
+		}
+		if($.trim(data.toString()) != ""){
+			if(newmessageflag)
+				newMessageAlert();
+		}
+	});
+}
+
+/**
+ * addnew() adds the new client to the view of current users of the admin
+ * @param id - the id of the client
+ * @param name - the alies/nickname of the client
+ */
+function addnew(id, name) {
+	ch_list = document.getElementById('chatclientlist');
+	var nd = document.createElement('li');
+	var str = $.trim(name);
+
+	if ($.trim(name) == "")
+		name = id;
+
+	nd.setAttribute('id', $.trim(id));
+	nd.setAttribute('title', $.trim(name));
+	nd.innerHTML ="<a onclick=\"set_conversation('"
+			+ $.trim(id) 
+			+ "',this) \"/>"
+			+ "<img src='../javascripts/chat/image/iChat.gif' align=\"absmiddle\"/>"
+			+ $.trim(name) 
+			+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>"
+			+ "<img src='../javascripts/chat/image/iClose.gif' onclick='remove(this)' title='"
+			+ $.trim(id) + "=" + str
+			+ "' style='cursor:pointer;'align=\"absmiddle\"/>";
+
+	//ch_list.insertBefore(nd, ch_list.firstChild);
+	ch_list.insertBefore(nd, null);
+}
+
+// sends the reply of the admin to the specified user
+function send_reply() {
+	var cht = document.getElementById('chatText');
+	var message = document.getElementById('chatmessage').value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	var d = getTimeStamp();
+	var nd = document.createElement('div');
+	nd.setAttribute('class', 'chat_item');
+
+	var sender = document.createElement('p');
+	sender.setAttribute('class', 'server');
+	var time = document.createElement('h6');
+
+	sender.innerHTML = "<em class='server'>" + chatusername + ":</em> "
+			+ message;
+	time.innerHTML = d;
+
+	nd.appendChild(sender);
+	nd.appendChild(time);
+
+	// try to include an inside function in the post..this will hadle error
+	// checking...
+	$.post("chatsendadmin.do", {
+		user_name :chatusername,
+		user_id :current_client,
+		message :message,
+		date :d,
+		staff_id:staff_id+"-"+chatuser
+	});
+	cht.appendChild(nd);
+	cht.scrollTop = cht.scrollHeight;
+	document.getElementById('chatmessage').value = "";
+	document.getElementById('chatmessage').focus();
+
+}
+
+// sets the current user chatting
+function set_conversation(id,handler) {
+//	movetotop(id, handler);
+	$("#" + $.trim(current_client)).attr('class','clicked');
+	current_client = id;
+	document.getElementById('chatmessage').value = "";
+	$("#" + $.trim(id)).attr('class','active');
+	$("#chatmessage").focus();
+	updateConversation();
+}
+
+//move the current user to the top of the view.
+//function movetotop(id,handler){
+//	var ch_list = document.getElementById('chatclientlist');
+//	var user = handler.title;
+///	handler = handler.parentNode;
+//	ch_list.removeChild(handler);
+//	ch_list.insertBefore(handler, ch_list.firstChild);
+//}
+
+// removes an item in the chat list
+function remove(handler) {
+	var ch_list = document.getElementById('chatclientlist');
+	var user = handler.title;
+	handler = handler.parentNode;
+	var userValue = user.split('=');
+	delete (current_online_clients[userValue[0]]);
+	if (current_client == userValue[0]) {
+		current_client = "";
+		$('#chatText').html("");
+	}
+	ch_list.removeChild(handler);
+}
+
+//views the log of the staff the admin wants to see
+function viewLog(id) {
+	$("#" + $.trim(current_client)).attr('class','clicked');
+	
+	current_client = "";
+	$.post("viewstafflog.do", {staff_id :id}, function(data) {
+		document.getElementById('chatText').innerHTML=data;
+		
+	});
+}
+
+//Formatted time.
+function getTimeStamp() {
+	var d = new Date();
+
+	return ((d.getMonth().toString().length == 1) ? '0' + d.getMonth()
+			.toString() : d.getMonth().toString())
+			+ '-'
+			+ ((d.getDate().toString().length == 1) ? '0' + d.getDate()
+					.toString() : d.getDate().toString())
+			+ '-'
+			+ ((d.getFullYear().toString().length == 1) ? '0' + d.getFullYear()
+					.toString() : d.getFullYear().toString())
+			+ ' '
+			+ ((d.getHours().toString().length == 1) ? '0' + d.getHours()
+					.toString() : d.getHours().toString())
+			+ ':'
+			+ ((d.getMinutes().toString().length == 1) ? '0' + d.getMinutes()
+					.toString() : d.getMinutes().toString())
+			+ ':'
+			+ ((d.getSeconds().toString().length == 1) ? '0' + d.getSeconds()
+					.toString() : d.getSeconds().toString());
+}
+
+//loads all the staff of the currentcompany
+function loadUserTypes(){
+	$.post("getallusers.do",
+		function(data){
+		var users = $.trim(data).split(",");
+		for(i=0;i<users.length;i++){
+			var name = users[i].split("=");
+			if(chatuser != name[1] && $.trim(name[2])!="WTG Administrator" && $.trim(name[2])!="Super User"){
+			var user = document.createElement("li");
+			user.setAttribute("onclick","viewLog('"+name[0]+"-"+name[1]+"')");
+			user.setAttribute("title", name[2]);
+			user.setAttribute("style","cursor:pointer;");
+			user.innerHTML = "<img src=\"../javascripts/chat/image/iChat.gif\" align=\"absmiddle\">" 
+				+ name[1]
+				+ "&nbsp;&nbsp;"
+				+ "<img src=\"../javascripts/chat/image/iLog.gif\" align=\"absmiddle\"/>";
+				
+			var contain = document.getElementById("chatemployees");
+			contain.insertBefore(user, null);
+			}
+		}
+	});
+}
+
+function signoutresettodefault(){
+	$.post("logoutchat.do");
+	$.post("chatadminlog.do", {admin_status :"online", staff_id :staff_id+"-"+chatuser, status :"0"});
+	window.close();
+}
+
+//Message Alert Window
+/**
+ * To alert window.
+ * @return
+ */
+var oldchatwindowtitle;
+var newchatwindowtitle = "*** New Message ***";//can be changed
+var newmessagealertinterval;
+var newmessageflag = true;
+var chatmsgisfocused = false;
+var getwindownameflag = true
+function newMessageAlert() {
+	if(getwindownameflag)
+		oldchatwindowtitle = document.title;
+	getwindownameflag = false;
+	newmessageflag = false;
+	$('#chatsoundelement').html("<embed src='" + chatsoundURL + "' hidden='true' height='0px' width='0px'></embed>");
+    newmessagealertinterval = setInterval(function() {
+        document.title = document.title == newchatwindowtitle ? oldchatwindowtitle : newchatwindowtitle;
+    }, 1000);
+    $(function(){
+		$("#chatmessage").focus(function(){
+			clearInterval(newmessagealertinterval);
+			document.title = oldchatwindowtitle;
+			$('#chatsoundelement').empty();
+			newmessageflag = true;
+		});	
+	});
+}
+//Message Alert Window END
+
+
+/*function adminClientWrite(){
+	var listofclients = document.getElementById('chatclientlist').childNodes;
+	var clients = "";
+	for(i=0;i<listofclients.length;i++)
+	{
+		if(typeof(listofclients[i].id)!="undefined")
+			clients = clients + listofclients[i].id + "|";
+	}
+	$.post("chatadminclient.do",{clients:clients,staff_id:staff_id});
+}*/

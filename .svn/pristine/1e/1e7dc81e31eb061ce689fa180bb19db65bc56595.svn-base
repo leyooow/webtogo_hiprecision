@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<parameter name="to" class="java.lang.String"/>
+	<parameter name="valueList" class="java.lang.String"/>
+	<parameter name="byLetter" class="java.lang.String"/>
+	<parameter name="becauseLetter" class="java.lang.String"/>
+	<parameter name="from" class="java.lang.String"/>
+	<parameter name="onDate" class="java.lang.String"/>
+	<parameter name="cardNo" class="java.lang.String"/>
+	<title>
+		<band height="402">
+			<rectangle radius="10">
+				<reportElement mode="Opaque" x="117" y="127" width="348" height="27" forecolor="#71BC37" backcolor="#71BC37"/>
+			</rectangle>
+			<image>
+				<reportElement x="216" y="33" width="124" height="68"/>
+				<imageExpression class="java.lang.String"><![CDATA["http://www.mundipharma.com.ph/images/mundipharma-logo.png"]]></imageExpression>
+			</image>
+			<rectangle>
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="86" y="148" width="404" height="149" forecolor="#71BC37"/>
+				<graphicElement>
+					<pen lineWidth="3.0"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement x="177" y="129" width="221" height="20" forecolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="15" isBold="true"/>
+				</textElement>
+				<text><![CDATA[GO THE EXTRA MILE!]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="100" y="173" width="240" height="23"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[You made it happen!]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="206" width="364" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["Dear " + $P{to} + ","]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="100" y="229" width="364" height="24"/>
+				<textElement lineSpacing="1_1_2"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["Thank you for practicing " + $P{valueList} + " on " + $P{onDate} + " by " + $P{byLetter} + ". Because of this, " + $P{becauseLetter} + "."]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="100" y="265" width="35" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA["From:"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="136" y="265" width="322" height="20"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{from}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="101" y="312" width="364" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["GEM Card No." + $P{cardNo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+</jasperReport>

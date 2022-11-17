@@ -1,0 +1,54 @@
+/* CSS for admin only */
+
+.rightAlign{
+	text-align: right;
+}
+.centerAlign{
+	text-align: center;
+}
+.leftAlign{
+	text-align: left;
+}
+
+.searchDropdown
+{
+	width: 165px
+}
+
+.searchDropdown2
+{
+	width: 173px
+}
+.page_subtitle_black
+{
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #000000;
+    line-height: 17px;
+}
+
+.search
+{
+	background: #CCCCCC;
+	padding: 8px 12px
+}
+.search table
+{
+	background: #CCCCCC;
+}
+
+.content_bold
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: 600;
+	color: #000000;
+}
+
+#errorMessage ul {
+	color: #ff0000; 
+	font-weight: bold; 
+	list-style: none;
+}
+

@@ -1,0 +1,18 @@
+procedure for adding a new domain AWSTATS:
+==========================================
+
+
+-  under the directory /usr/local/webtogotomcat/webapps/ROOT/awstats, create a new folder using the domain_name field of the Company Table. 
+
+-  under the directory /usr/awstats/awstats-6.7/wwwroot/cgi-bin, copy/duplicate the awstats.transpacific.conf file to awstats.<domain_name>.conf
+
+-  edit the following info in the newly created awstats.<domain_name>.conf  :
+
+   LogFile="/etc/httpd/logs/<domain_name>.webtogo.com.ph-access_log"
+   SiteDomain=<domain_name>
+
+-  add the following lines to /usr/awstats/awstats-6.7/wwwroot/cgi-bin/awstats-cron   :   (cron is run every 2:01 in the morning; this script will produce a new awstats report)
+
+   perl  /usr/awstats/awstats-6.7/wwwroot/cgi-bin/awstats.pl  -config=<domain_name>  -update
+   perl  /usr/awstats/awstats-6.7/wwwroot/cgi-bin/awstats.pl  -config=<domain_name>  -output -staticlinks  >  /usr/local/tomcat/webapps/ROOT/awstats/<domain_name>/awstats.<domain_name>.html
+
